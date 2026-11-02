@@ -56,7 +56,7 @@
 
 /* ---------------- design tokens ---------------- */
 @theme {
-  --font-sans: var(--font-vazirmatn), "Vazirmatn", Tahoma, ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Vazirmatn", Tahoma, ui-sans-serif, system-ui, sans-serif;
   --color-brand-50: #eefbf8;
   --color-brand-100: #d5f4ec;
   --color-brand-200: #aee8da;
