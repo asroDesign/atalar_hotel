@@ -58,8 +58,8 @@ export function HomeEditor({ initial }: { initial: HomeContent }) {
                 <div className="text-gradient text-sm font-bold">{c.heroHighlight}</div>
               </div>
             </div>
-            <label className="label mt-4">تیرگی روی ویدیو: {c.heroOverlay}٪</label>
-            <input type="range" min={0} max={90} value={c.heroOverlay} onChange={(e) => set("heroOverlay", Number(e.target.value))} className="w-full accent-brand-700" />
+            <label className="field-label mt-4">تیرگی روی ویدیو: {c.heroOverlay}٪</label>
+            <input type="range" min={0} max={90} value={c.heroOverlay} onChange={(e) => set("heroOverlay", Number(e.target.value))} className="range range-primary range-sm w-full" />
           </div>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
@@ -79,13 +79,13 @@ export function HomeEditor({ initial }: { initial: HomeContent }) {
               <div key={i} className="flex items-center gap-2 rounded-xl bg-slate-50 p-2">
                 <IconSelect value={s.icon} onChange={(v) => set("stats", c.stats.map((x, j) => (j === i ? { ...x, icon: v } : x)))} />
                 <input value={s.value} onChange={(e) => set("stats", c.stats.map((x, j) => (j === i ? { ...x, value: e.target.value } : x)))} className="input w-24" placeholder="مقدار" />
-                <input value={s.label} onChange={(e) => set("stats", c.stats.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))} className="input" placeholder="عنوان" />
+                <input value={s.label} onChange={(e) => set("stats", c.stats.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))} className="input w-full" placeholder="عنوان" />
                 <button type="button" onClick={() => set("stats", c.stats.filter((_, j) => j !== i))} className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-rose-600 hover:bg-rose-50"><Trash2 className="h-4 w-4" /></button>
               </div>
             ))}
           </div>
           {c.stats.length < 4 && (
-            <button type="button" onClick={() => set("stats", [...c.stats, { icon: "Star", value: "", label: "" }])} className="btn-ghost mt-2"><Plus className="h-4 w-4" /> افزودن کارت</button>
+            <button type="button" onClick={() => set("stats", [...c.stats, { icon: "Star", value: "", label: "" }])} className="btn mt-2"><Plus className="h-4 w-4" /> افزودن کارت</button>
           )}
         </div>
       </SectionCard>
@@ -96,14 +96,14 @@ export function HomeEditor({ initial }: { initial: HomeContent }) {
           {c.features.map((f, i) => (
             <div key={i} className="flex items-center gap-2 rounded-xl bg-slate-50 p-2">
               <IconSelect value={f.icon} onChange={(v) => set("features", c.features.map((x, j) => (j === i ? { ...x, icon: v } : x)))} />
-              <input value={f.title} onChange={(e) => set("features", c.features.map((x, j) => (j === i ? { ...x, title: e.target.value } : x)))} className="input" placeholder="عنوان" />
-              <input value={f.text} onChange={(e) => set("features", c.features.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))} className="input" placeholder="توضیح" />
+              <input value={f.title} onChange={(e) => set("features", c.features.map((x, j) => (j === i ? { ...x, title: e.target.value } : x)))} className="input w-full" placeholder="عنوان" />
+              <input value={f.text} onChange={(e) => set("features", c.features.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))} className="input w-full" placeholder="توضیح" />
               <button type="button" onClick={() => set("features", c.features.filter((_, j) => j !== i))} className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-rose-600 hover:bg-rose-50"><Trash2 className="h-4 w-4" /></button>
             </div>
           ))}
         </div>
         {c.features.length < 4 && (
-          <button type="button" onClick={() => set("features", [...c.features, { icon: "Sparkles", title: "", text: "" }])} className="btn-ghost"><Plus className="h-4 w-4" /> افزودن ویژگی</button>
+          <button type="button" onClick={() => set("features", [...c.features, { icon: "Sparkles", title: "", text: "" }])} className="btn"><Plus className="h-4 w-4" /> افزودن ویژگی</button>
         )}
       </SectionCard>
 
@@ -113,8 +113,8 @@ export function HomeEditor({ initial }: { initial: HomeContent }) {
           <TextField label="برچسب" value={c.roomsEyebrow} onChange={(v) => set("roomsEyebrow", v)} />
           <TextField label="عنوان" value={c.roomsTitle} onChange={(v) => set("roomsTitle", v)} />
           <div>
-            <label className="label">تعداد اتاق نمایشی</label>
-            <input type="number" min={1} max={16} value={c.roomsCount} onChange={(e) => set("roomsCount", Number(e.target.value) || 6)} className="input" />
+            <label className="field-label">تعداد اتاق نمایشی</label>
+            <input type="number" min={1} max={16} value={c.roomsCount} onChange={(e) => set("roomsCount", Number(e.target.value) || 6)} className="input w-full" />
           </div>
         </div>
         <TextField label="توضیح" value={c.roomsText} onChange={(v) => set("roomsText", v)} area rows={2} hint="اتاق‌هایی که در بخش «اتاق‌ها» به‌عنوان «ویژه» علامت خورده‌اند نمایش داده می‌شوند." />
@@ -142,12 +142,12 @@ export function HomeEditor({ initial }: { initial: HomeContent }) {
           <TextField label="متن دکمه رزرو" value={c.poolCta} onChange={(v) => set("poolCta", v)} />
         </div>
         <div>
-          <label className="label">ویژگی‌های استخر</label>
+          <label className="field-label">ویژگی‌های استخر</label>
           <StringListEditor value={c.poolFeatures} onChange={(v) => set("poolFeatures", v)} placeholder="مثلاً جکوزی و سونا" />
         </div>
         <div className="flex items-center justify-between rounded-xl bg-gold-400/10 p-4 text-sm text-slate-700">
           سانس‌ها، قیمت هر سانس و هزینه نفر اضافه در ویرایش خدمت «استخر خانوادگی» مدیریت می‌شوند.
-          <Link href="/admin/services" className="btn-ghost shrink-0">مدیریت سانس‌ها</Link>
+          <Link href="/admin/services" className="btn shrink-0">مدیریت سانس‌ها</Link>
         </div>
       </SectionCard>
 
@@ -202,8 +202,8 @@ export function HomeEditor({ initial }: { initial: HomeContent }) {
       </SectionCard>
 
       <div className="fixed inset-x-4 bottom-4 z-30 flex flex-wrap items-center gap-3 rounded-2xl bg-white/90 p-3 shadow-2xl ring-1 ring-slate-200 backdrop-blur lg:right-[19rem]">
-        <SubmitButton className="btn-primary px-8"><Save className="h-4 w-4" /> ذخیره و انتشار</SubmitButton>
-        <Link href="/" target="_blank" className="btn-ghost"><ExternalLink className="h-4 w-4" /> مشاهده صفحه اصلی</Link>
+        <SubmitButton className="btn btn-primary px-8"><Save className="h-4 w-4" /> ذخیره و انتشار</SubmitButton>
+        <Link href="/" target="_blank" className="btn"><ExternalLink className="h-4 w-4" /> مشاهده صفحه اصلی</Link>
         <button
           type="button"
           disabled={resetting}

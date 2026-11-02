@@ -39,7 +39,7 @@ export function PageHero({ title, subtitle, image, eyebrow }: { title: string; s
       <img src={image} alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" />
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-950/80 via-brand-950/70 to-brand-950/90" />
       <div className="mx-auto max-w-7xl px-6 text-center text-white">
-        {eyebrow && <span className="glass inline-block rounded-full px-4 py-1.5 text-xs font-semibold text-gold-300">{eyebrow}</span>}
+        {eyebrow && <span className="frost inline-block rounded-full px-4 py-1.5 text-xs font-semibold text-gold-300">{eyebrow}</span>}
         <h1 className="mt-4 animate-fade-up text-4xl font-black md:text-5xl">{title}</h1>
         {subtitle && <p className="mx-auto mt-4 max-w-2xl animate-fade-up leading-8 text-white/75">{subtitle}</p>}
       </div>
@@ -57,9 +57,9 @@ export function RoomCard({ room }: { room: Room }) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={room.images[0] ?? "/images/hero.jpg"} alt={room.name} className="h-full w-full object-cover transition duration-700 group-hover:scale-110" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent" />
-        <span className="glass absolute right-3 top-3 rounded-full px-3 py-1 text-xs font-semibold text-white">{room.type}</span>
+        <span className="frost absolute right-3 top-3 rounded-full px-3 py-1 text-xs font-semibold text-white">{room.type}</span>
         {room.videoUrl && (
-          <span className="glass absolute left-3 top-3 flex items-center gap-1 rounded-full px-2.5 py-1 text-xs text-white">
+          <span className="frost absolute left-3 top-3 flex items-center gap-1 rounded-full px-2.5 py-1 text-xs text-white">
             <PlayCircle className="h-3.5 w-3.5" /> ویدیو
           </span>
         )}
@@ -91,7 +91,7 @@ export function AttractionCard({ a }: { a: Attraction }) {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={a.image || "/images/hero.jpg"} alt={a.name} className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-110" />
       <div className="absolute inset-0 bg-gradient-to-t from-brand-950 via-brand-950/30 to-transparent" />
-      <span className="glass absolute right-4 top-4 rounded-full px-3 py-1 text-xs font-semibold text-white">{a.category}</span>
+      <span className="frost absolute right-4 top-4 rounded-full px-3 py-1 text-xs font-semibold text-white">{a.category}</span>
       <div className="absolute inset-x-0 bottom-0 p-5 text-white">
         <h3 className="text-xl font-extrabold">{a.name}</h3>
         <p className="mt-2 line-clamp-2 text-sm leading-6 text-white/75 transition-all group-hover:line-clamp-none">{a.description}</p>

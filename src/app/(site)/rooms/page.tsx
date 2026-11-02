@@ -26,7 +26,7 @@ export default async function RoomsPage({ searchParams }: { searchParams: Promis
     <>
       <PageHero eyebrow={`${faNum(all.length)} اتاق و سوئیت`} title="اتاق‌ها و سوئیت‌ها" subtitle="اتاقی متناسب با سفر خود انتخاب کنید؛ همه اتاق‌ها دارای آب گرم معدنی، صبحانه محلی و اینترنت رایگان هستند." image="/images/hero.jpg" />
       <section className="mx-auto max-w-7xl px-6 py-12">
-        <div className="card mb-8 flex flex-col gap-4 p-4 md:flex-row md:items-center md:justify-between">
+        <div className="card card-border bg-base-100 shadow-sm mb-8 flex flex-col gap-4 p-4 md:flex-row md:items-center md:justify-between">
           <div className="no-scrollbar flex gap-2 overflow-x-auto">
             <Link href={href({ type: undefined })} className={cn("whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium", !sp.type ? "bg-brand-700 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200")}>همه</Link>
             {types.map((t) => (
@@ -41,7 +41,7 @@ export default async function RoomsPage({ searchParams }: { searchParams: Promis
           </div>
         </div>
         {list.length === 0 ? (
-          <EmptyState title="اتاقی با این فیلتر پیدا نشد" desc="فیلترها را تغییر دهید." action={<Link href="/rooms" className="btn-primary">حذف فیلترها</Link>} />
+          <EmptyState title="اتاقی با این فیلتر پیدا نشد" desc="فیلترها را تغییر دهید." action={<Link href="/rooms" className="btn btn-primary">حذف فیلترها</Link>} />
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {list.map((r) => <RoomCard key={r.id} room={r} />)}

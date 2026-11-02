@@ -27,7 +27,7 @@ export function MessagesInbox({ initial }: { initial: Message[] }) {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_1.4fr]">
-      <ul className="card max-h-[70vh] divide-y divide-slate-100 overflow-y-auto">
+      <ul className="card card-border bg-base-100 shadow-sm max-h-[70vh] divide-y divide-slate-100 overflow-y-auto block">
         {items.map((m) => (
           <li key={m.id}>
             <button onClick={() => open(m)} className={cn("flex w-full items-start gap-3 p-4 text-right transition", selected === m.id ? "bg-brand-50" : "hover:bg-slate-50")}>
@@ -45,29 +45,29 @@ export function MessagesInbox({ initial }: { initial: Message[] }) {
         ))}
       </ul>
       {current ? (
-        <div className="card p-6">
+        <div className="card card-border bg-base-100 shadow-sm p-6 block">
           <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h2 className="text-lg font-extrabold text-slate-900">{current.subject || "بدون موضوع"}</h2>
               <div className="mt-1 text-sm text-slate-500">{current.name} · {formatDateTime(current.createdAt)}</div>
             </div>
             <div className="flex gap-1">
-              <button onClick={() => start(async () => { apply({ type: "read", id: current.id, v: !current.isRead }); await setMessageRead(current.id, !current.isRead); setToast(current.isRead ? "علامت خوانده‌نشده" : "خوانده شد"); })} className="btn-ghost px-3 py-2 text-xs">
+              <button onClick={() => start(async () => { apply({ type: "read", id: current.id, v: !current.isRead }); await setMessageRead(current.id, !current.isRead); setToast(current.isRead ? "علامت خوانده‌نشده" : "خوانده شد"); })} className="btn px-3 btn-sm text-xs">
                 {current.isRead ? <Mail className="h-4 w-4" /> : <MailOpen className="h-4 w-4" />} {current.isRead ? "خوانده‌نشده" : "خوانده شد"}
               </button>
-              <button onClick={() => { if (confirm("پیام حذف شود؟")) start(async () => { apply({ type: "delete", id: current.id }); setSelected(null); await deleteMessage(current.id); setToast("پیام حذف شد"); }); }} className="btn px-3 py-2 text-xs text-rose-600 hover:bg-rose-50">
+              <button onClick={() => { if (confirm("پیام حذف شود؟")) start(async () => { apply({ type: "delete", id: current.id }); setSelected(null); await deleteMessage(current.id); setToast("پیام حذف شد"); }); }} className="btn px-3 btn-sm text-xs text-rose-600 hover:bg-rose-50">
                 <Trash2 className="h-4 w-4" /> حذف
               </button>
             </div>
           </div>
           <p className="whitespace-pre-line py-6 leading-8 text-slate-700">{current.body}</p>
           <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-4">
-            {current.phone && <a href={`tel:${current.phone}`} className="btn-primary"><Phone className="h-4 w-4" /><span dir="ltr">{faNum(current.phone)}</span></a>}
-            {current.email && <a href={`mailto:${current.email}?subject=${encodeURIComponent("پاسخ: " + current.subject)}`} className="btn-ghost"><Reply className="h-4 w-4" /> پاسخ با ایمیل</a>}
+            {current.phone && <a href={`tel:${current.phone}`} className="btn btn-primary"><Phone className="h-4 w-4" /><span dir="ltr">{faNum(current.phone)}</span></a>}
+            {current.email && <a href={`mailto:${current.email}?subject=${encodeURIComponent("پاسخ: " + current.subject)}`} className="btn"><Reply className="h-4 w-4" /> پاسخ با ایمیل</a>}
           </div>
         </div>
       ) : (
-        <div className="card grid place-items-center p-10 text-sm text-slate-400">پیامی را انتخاب کنید</div>
+        <div className="card card-border bg-base-100 shadow-sm grid place-items-center p-10 text-sm text-slate-400">پیامی را انتخاب کنید</div>
       )}
       <Toast message={toast} onDone={() => setToast(null)} />
     </div>

@@ -153,35 +153,12 @@ export function parseVideo(url: string | null | undefined): VideoSource {
   return { kind: "file", src: u };
 }
 
-export const statusMeta: Record<
-  string,
-  { label: string; className: string; dot: string }
-> = {
-  pending_payment: {
-    label: "در انتظار پیش‌پرداخت",
-    className: "bg-amber-50 text-amber-700 ring-amber-200",
-    dot: "bg-amber-500",
-  },
-  paid: {
-    label: "پرداخت شده - در انتظار تایید",
-    className: "bg-sky-50 text-sky-700 ring-sky-200",
-    dot: "bg-sky-500",
-  },
-  confirmed: {
-    label: "قطعی - کد رزرو صادر شد",
-    className: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-    dot: "bg-emerald-500",
-  },
-  rejected: {
-    label: "رد شده",
-    className: "bg-rose-50 text-rose-700 ring-rose-200",
-    dot: "bg-rose-500",
-  },
-  cancelled: {
-    label: "لغو شده",
-    className: "bg-slate-100 text-slate-600 ring-slate-200",
-    dot: "bg-slate-400",
-  },
+export const statusMeta: Record<string, { label: string; badge: string; dot: string }> = {
+  pending_payment: { label: "در انتظار پیش‌پرداخت", badge: "badge-warning", dot: "status-warning" },
+  paid: { label: "پرداخت شده - در انتظار تایید", badge: "badge-info", dot: "status-info" },
+  confirmed: { label: "قطعی - کد رزرو صادر شد", badge: "badge-success", dot: "status-success" },
+  rejected: { label: "رد شده", badge: "badge-error", dot: "status-error" },
+  cancelled: { label: "لغو شده", badge: "badge-neutral", dot: "status-neutral" },
 };
 
 export function linesToArray(v: FormDataEntryValue | null): string[] {

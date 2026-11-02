@@ -30,7 +30,7 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
         <div className="text-center text-white">
           <h1 className="animate-fade-up text-4xl font-black md:text-5xl">{booking.pageTitle}</h1>
           <p className="mx-auto mt-3 max-w-2xl animate-fade-up text-white/70">{booking.pageSubtitle}</p>
-          <a href="#track" className="glass mt-5 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-white hover:bg-white/20">
+          <a href="#track" className="frost mt-5 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-white hover:bg-white/20">
             <SearchCheck className="h-4 w-4 text-gold-300" /> قبلاً رزرو کرده‌اید؟ پیگیری رزرو
           </a>
         </div>
@@ -38,7 +38,7 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
         <BookingProcess title={booking.processTitle} subtitle={booking.processSubtitle} steps={booking.steps} notice={booking.notice} />
 
         <div id="form" className="grid scroll-mt-28 gap-6 lg:grid-cols-[1.6fr_1fr]">
-          <div className="card p-5 shadow-xl md:p-8">
+          <div className="card card-border bg-base-100 shadow-sm p-5 shadow-xl md:p-8 block">
             <h2 className="mb-6 text-xl font-black text-slate-900">فرم درخواست رزرو</h2>
             {allRooms.length === 0 && bookable.length === 0 ? (
               <EmptyState title="در حال حاضر امکان رزرو وجود ندارد" desc="لطفاً با پذیرش تماس بگیرید." />
@@ -61,12 +61,12 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
                 ...bookable.map((b) => ({ key: `s${b.id}`, title: `قوانین ${b.name}`, kind: "service" as const, rules: b.rules })),
               ]}
             />
-            <div className="card p-5">
+            <div className="card card-border bg-base-100 shadow-sm p-5 block">
               <h3 className="font-extrabold text-slate-900">نیاز به راهنمایی دارید؟</h3>
               <p className="mt-1 text-sm leading-7 text-slate-500">کارشناسان پذیرش به‌صورت ۲۴ ساعته پاسخگوی شما هستند.</p>
               <div className="mt-4 grid grid-cols-2 gap-2">
-                <a href={`tel:${s.phone}`} className="btn-primary"><Phone className="h-4 w-4" /><span dir="ltr">{faNum(s.phone)}</span></a>
-                <a href={`https://wa.me/${s.whatsapp}`} target="_blank" rel="noreferrer" className="btn-ghost"><MessageCircle className="h-4 w-4" /> واتس‌اپ</a>
+                <a href={`tel:${s.phone}`} className="btn btn-primary"><Phone className="h-4 w-4" /><span dir="ltr">{faNum(s.phone)}</span></a>
+                <a href={`https://wa.me/${s.whatsapp}`} target="_blank" rel="noreferrer" className="btn"><MessageCircle className="h-4 w-4" /> واتس‌اپ</a>
               </div>
             </div>
           </aside>

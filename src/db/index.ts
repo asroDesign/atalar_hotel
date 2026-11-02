@@ -1,24 +1,43 @@
-import { drizzle } from "drizzle-orm/node-postgres";
+import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
-const databaseUrl = process.env.DATABASE_URL;
-
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required");
-}
+/**
+ * The database client is created lazily on first use.
+ * This keeps `next build` working in environments where DATABASE_URL is not
+ * available at build time (Next.js imports every route while collecting page
+ * data). A clear error is still thrown at runtime if it is missing.
+ */
 
 const globalForDb = globalThis as typeof globalThis & {
   __arenaNextJsPostgresqlPool?: Pool;
+  __atalarDb?: NodePgDatabase;
 };
 
-export const pool =
-  globalForDb.__arenaNextJsPostgresqlPool ??
-  new Pool({
-    connectionString: databaseUrl,
-  });
-
-if (process.env.NODE_ENV !== "production") {
+export function getPool(): Pool {
+  if (globalForDb.__arenaNextJsPostgresqlPool) return globalForDb.__arenaNextJsPostgresqlPool;
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL is required");
+  }
+  const pool = new Pool({ connectionString: databaseUrl });
   globalForDb.__arenaNextJsPostgresqlPool = pool;
+  return pool;
 }
 
-export const db = drizzle(pool);
+function getDb(): NodePgDatabase {
+  if (!globalForDb.__atalarDb) {
+    globalForDb.__atalarDb = drizzle(getPool());
+  }
+  return globalForDb.__atalarDb;
+}
+
+export const db = new Proxy({} as NodePgDatabase, {
+  get(_target, prop) {
+    const real = getDb();
+    const value = Reflect.get(real, prop, real);
+    return typeof value === "function" ? value.bind(real) : value;
+  },
+  has(_target, prop) {
+    return Reflect.has(getDb(), prop);
+  },
+});

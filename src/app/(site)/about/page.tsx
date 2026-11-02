@@ -47,7 +47,7 @@ export default async function AboutPage() {
               { v: `${faNum(gc.c + 1200)}+`, l: "مهمان راضی" },
               { v: faNum(tc.c), l: "امتیاز مهمانان" },
             ].map((x) => (
-              <div key={x.l} className="card p-4 text-center">
+              <div key={x.l} className="card card-border bg-base-100 shadow-sm p-4 text-center block">
                 <div className="text-2xl font-black text-brand-700">{x.v}</div>
                 <div className="mt-1 text-xs text-slate-500">{x.l}</div>
               </div>
@@ -81,8 +81,8 @@ export default async function AboutPage() {
         <h2 className="mt-4 text-3xl font-black text-slate-900">تیم آتالار منتظر شماست</h2>
         <p className="mt-4 leading-8 text-slate-500">کارکنان ما به زبان‌های فارسی، ترکی آذربایجانی و انگلیسی آماده پاسخگویی هستند.</p>
         <div className="mt-8 flex justify-center gap-3">
-          <Link href="/booking" className="btn-gold px-8 py-3"><CalendarCheck className="h-4 w-4" /> رزرو</Link>
-          <Link href="/contact" className="btn-ghost px-8 py-3">تماس با ما</Link>
+          <Link href="/booking" className="btn btn-secondary px-8 h-12"><CalendarCheck className="h-4 w-4" /> رزرو</Link>
+          <Link href="/contact" className="btn px-8 h-12">تماس با ما</Link>
         </div>
       </section>
     </>

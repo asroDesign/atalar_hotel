@@ -19,13 +19,13 @@ export function RoomsGrid({ initial }: { initial: Room[] }) {
   );
 
   if (items.length === 0)
-    return <EmptyBox title="هنوز اتاقی تعریف نشده" desc="اولین اتاق هتل را همراه با تصاویر و ویدیو اضافه کنید." icon={<BedDouble className="h-6 w-6" />} action={<Link href="/admin/rooms/new" className="btn-primary"><Plus className="h-4 w-4" /> افزودن اتاق</Link>} />;
+    return <EmptyBox title="هنوز اتاقی تعریف نشده" desc="اولین اتاق هتل را همراه با تصاویر و ویدیو اضافه کنید." icon={<BedDouble className="h-6 w-6" />} action={<Link href="/admin/rooms/new" className="btn btn-primary"><Plus className="h-4 w-4" /> افزودن اتاق</Link>} />;
 
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {items.map((r) => (
-          <div key={r.id} className={cn("card overflow-hidden transition", !r.isActive && "opacity-60")}>
+          <div key={r.id} className={cn("card card-border bg-base-100 shadow-sm overflow-hidden transition block", !r.isActive && "opacity-60")}>
             <div className="relative aspect-[16/9] bg-slate-100">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {r.images[0] && <img src={r.images[0]} alt="" className="h-full w-full object-cover" />}
@@ -84,49 +84,49 @@ export function RoomForm({ room }: { room?: Room }) {
     <form action={action} className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
       <input type="hidden" name="id" value={room?.id ?? ""} />
       <div className="space-y-6">
-        <section className="card space-y-4 p-5">
+        <section className="card card-border bg-base-100 shadow-sm space-y-4 p-5 block">
           <h3 className="font-extrabold text-slate-900">اطلاعات اصلی</h3>
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="sm:col-span-2"><label className="label">نام اتاق *</label><input name="name" defaultValue={room?.name} required className="input" placeholder="مثلاً دبل استاندارد ۱۰۱" /></div>
-            <div><label className="label">نوع اتاق</label><input name="type" defaultValue={room?.type ?? "دبل استاندارد"} className="input" list="room-types" />
+            <div className="sm:col-span-2"><label className="field-label">نام اتاق *</label><input name="name" defaultValue={room?.name} required className="input w-full" placeholder="مثلاً دبل استاندارد ۱۰۱" /></div>
+            <div><label className="field-label">نوع اتاق</label><input name="type" defaultValue={room?.type ?? "دبل استاندارد"} className="input w-full" list="room-types" />
               <datalist id="room-types">{["دبل استاندارد", "توئین", "سه‌تخته", "خانوادگی", "سوئیت جونیور", "سوئیت رویال آتالار"].map((t) => <option key={t} value={t} />)}</datalist>
             </div>
-            <div><label className="label">شماره اتاق</label><input name="roomNumber" defaultValue={room?.roomNumber} className="input" /></div>
-            <div className="sm:col-span-2"><label className="label">توضیح کوتاه</label><input name="shortDescription" defaultValue={room?.shortDescription} className="input" /></div>
-            <div className="sm:col-span-2"><label className="label">توضیحات کامل</label><textarea name="description" rows={6} defaultValue={room?.description} className="input" /></div>
+            <div><label className="field-label">شماره اتاق</label><input name="roomNumber" defaultValue={room?.roomNumber} className="input w-full" /></div>
+            <div className="sm:col-span-2"><label className="field-label">توضیح کوتاه</label><input name="shortDescription" defaultValue={room?.shortDescription} className="input w-full" /></div>
+            <div className="sm:col-span-2"><label className="field-label">توضیحات کامل</label><textarea name="description" rows={6} defaultValue={room?.description} className="textarea w-full" /></div>
           </div>
         </section>
-        <section className="card space-y-4 p-5">
+        <section className="card card-border bg-base-100 shadow-sm space-y-4 p-5 block">
           <h3 className="font-extrabold text-slate-900">مشخصات</h3>
           <div className="grid gap-4 sm:grid-cols-3">
-            <div><label className="label">ظرفیت (نفر)</label><input name="capacity" type="number" min={1} defaultValue={room?.capacity ?? 2} className="input" /></div>
-            <div><label className="label">تخت اضافه</label><input name="extraBeds" type="number" min={0} defaultValue={room?.extraBeds ?? 0} className="input" /></div>
-            <div><label className="label">متراژ (م²)</label><input name="size" type="number" defaultValue={room?.size ?? 25} className="input" /></div>
-            <div><label className="label">طبقه</label><input name="floor" type="number" defaultValue={room?.floor ?? 1} className="input" /></div>
-            <div className="sm:col-span-2"><label className="label">نوع تخت</label><input name="beds" defaultValue={room?.beds} className="input" /></div>
-            <div className="sm:col-span-3"><label className="label">چشم‌انداز</label><input name="view" defaultValue={room?.view} className="input" placeholder="نمای کوه سبلان" /></div>
+            <div><label className="field-label">ظرفیت (نفر)</label><input name="capacity" type="number" min={1} defaultValue={room?.capacity ?? 2} className="input w-full" /></div>
+            <div><label className="field-label">تخت اضافه</label><input name="extraBeds" type="number" min={0} defaultValue={room?.extraBeds ?? 0} className="input w-full" /></div>
+            <div><label className="field-label">متراژ (م²)</label><input name="size" type="number" defaultValue={room?.size ?? 25} className="input w-full" /></div>
+            <div><label className="field-label">طبقه</label><input name="floor" type="number" defaultValue={room?.floor ?? 1} className="input w-full" /></div>
+            <div className="sm:col-span-2"><label className="field-label">نوع تخت</label><input name="beds" defaultValue={room?.beds} className="input w-full" /></div>
+            <div className="sm:col-span-3"><label className="field-label">چشم‌انداز</label><input name="view" defaultValue={room?.view} className="input w-full" placeholder="نمای کوه سبلان" /></div>
           </div>
-          <div><label className="label">امکانات اتاق (هر مورد در یک خط)</label><textarea name="features" rows={6} defaultValue={room?.features.join("\n")} className="input" /></div>
+          <div><label className="field-label">امکانات اتاق (هر مورد در یک خط)</label><textarea name="features" rows={6} defaultValue={room?.features.join("\n")} className="textarea w-full" /></div>
         </section>
-        <section className="card space-y-4 p-5">
+        <section className="card card-border bg-base-100 shadow-sm space-y-4 p-5 block">
           <h3 className="font-extrabold text-slate-900">تصاویر</h3>
           <ImageListInput name="images" initial={room?.images ?? []} />
         </section>
-        <section className="card space-y-4 p-5">
+        <section className="card card-border bg-base-100 shadow-sm space-y-4 p-5 block">
           <h3 className="font-extrabold text-slate-900">ویدیو معرفی</h3>
           <VideoUrlInput name="videoUrl" defaultValue={room?.videoUrl} />
         </section>
       </div>
       <aside className="space-y-4 lg:sticky lg:top-8 lg:self-start">
-        <section className="card space-y-4 p-5">
-          <div><label className="label">قیمت هر شب (تومان)</label><input name="pricePerNight" type="number" min={0} step={10000} defaultValue={room?.pricePerNight ?? 2500000} className="input text-lg font-bold" /></div>
-          <div><label className="label">نامک (slug)</label><input name="slug" defaultValue={room?.slug} dir="ltr" className="input text-left" placeholder="room-101" /></div>
-          <div><label className="label">ترتیب نمایش</label><input name="sortOrder" type="number" defaultValue={room?.sortOrder ?? 0} className="input" /></div>
-          <label className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3 text-sm"><span>نمایش در سایت</span><input type="checkbox" name="isActive" defaultChecked={room?.isActive ?? true} className="h-5 w-5 accent-brand-700" /></label>
-          <label className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3 text-sm"><span>اتاق ویژه (صفحه اصلی)</span><input type="checkbox" name="isFeatured" defaultChecked={room?.isFeatured ?? false} className="h-5 w-5 accent-brand-700" /></label>
+        <section className="card card-border bg-base-100 shadow-sm space-y-4 p-5 block">
+          <div><label className="field-label">قیمت هر شب (تومان)</label><input name="pricePerNight" type="number" min={0} step={10000} defaultValue={room?.pricePerNight ?? 2500000} className="input w-full text-lg font-bold" /></div>
+          <div><label className="field-label">نامک (slug)</label><input name="slug" defaultValue={room?.slug} dir="ltr" className="input w-full text-left" placeholder="room-101" /></div>
+          <div><label className="field-label">ترتیب نمایش</label><input name="sortOrder" type="number" defaultValue={room?.sortOrder ?? 0} className="input w-full" /></div>
+          <label className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3 text-sm"><span>نمایش در سایت</span><input type="checkbox" name="isActive" defaultChecked={room?.isActive ?? true} className="checkbox checkbox-primary" /></label>
+          <label className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3 text-sm"><span>اتاق ویژه (صفحه اصلی)</span><input type="checkbox" name="isFeatured" defaultChecked={room?.isFeatured ?? false} className="checkbox checkbox-primary" /></label>
           <FormAlert state={state} />
-          <SubmitButton className="btn-primary w-full py-3">{room ? "ذخیره تغییرات" : "ایجاد اتاق"}</SubmitButton>
-          <Link href="/admin/rooms" className="btn-ghost w-full">انصراف</Link>
+          <SubmitButton className="btn btn-primary w-full h-12">{room ? "ذخیره تغییرات" : "ایجاد اتاق"}</SubmitButton>
+          <Link href="/admin/rooms" className="btn w-full">انصراف</Link>
         </section>
       </aside>
     </form>

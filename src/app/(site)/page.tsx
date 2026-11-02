@@ -41,7 +41,7 @@ export default async function HomePage() {
         <div className="mx-auto grid w-full max-w-7xl items-end gap-10 px-6 lg:grid-cols-[1.3fr_1fr]">
           <div className="text-white">
             {h.heroBadge && (
-              <div className="glass inline-flex animate-fade-up items-center gap-2 rounded-full px-4 py-1.5 text-sm">
+              <div className="frost inline-flex animate-fade-up items-center gap-2 rounded-full px-4 py-1.5 text-sm">
                 <span className="flex">{Array.from({ length: Number(s.stars) || 4 }).map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-gold-400 text-gold-400" />)}</span>
                 {h.heroBadge}
               </div>
@@ -52,14 +52,14 @@ export default async function HomePage() {
             </h1>
             {h.heroText && <p className="mt-6 max-w-xl animate-fade-up text-lg leading-9 text-white/85">{h.heroText}</p>}
             <div className="mt-8 flex flex-wrap gap-3">
-              {h.heroPrimaryCta && <Link href="/booking" className="btn-gold px-7 py-3.5 text-base"><CalendarCheck className="h-5 w-5" /> {h.heroPrimaryCta}</Link>}
-              {h.heroSecondaryCta && <Link href="/rooms" className="btn glass px-7 py-3.5 text-base text-white hover:bg-white/20"><BedDouble className="h-5 w-5" /> {h.heroSecondaryCta}</Link>}
+              {h.heroPrimaryCta && <Link href="/booking" className="btn btn-secondary px-7 h-12 text-base"><CalendarCheck className="h-5 w-5" /> {h.heroPrimaryCta}</Link>}
+              {h.heroSecondaryCta && <Link href="/rooms" className="btn frost px-7 h-12 text-base text-white hover:bg-white/20"><BedDouble className="h-5 w-5" /> {h.heroSecondaryCta}</Link>}
             </div>
           </div>
           {h.stats.length > 0 && (
             <div className="hidden gap-3 lg:grid lg:grid-cols-2">
               {h.stats.slice(0, 4).map(({ value, label, icon }, i) => (
-                <div key={i} className="glass animate-float rounded-3xl p-5 text-white" style={{ animationDelay: `${i * 0.6}s` }}>
+                <div key={i} className="frost animate-float rounded-3xl p-5 text-white" style={{ animationDelay: `${i * 0.6}s` }}>
                   <DynIcon name={icon} className="h-6 w-6 text-gold-300" />
                   <div className="mt-3 text-3xl font-black">{value}</div>
                   <div className="text-sm text-white/70">{label}</div>
@@ -73,7 +73,7 @@ export default async function HomePage() {
       {/* QUICK STRIP */}
       {h.showFeatures && h.features.length > 0 && (
         <section className="relative z-10 mx-auto -mt-8 max-w-6xl px-6">
-          <div className="glass-light grid grid-cols-2 gap-4 rounded-3xl p-5 shadow-xl md:grid-cols-4">
+          <div className="frost-light grid grid-cols-2 gap-4 rounded-3xl p-5 shadow-xl md:grid-cols-4">
             {h.features.slice(0, 4).map(({ title, text, icon }, i) => (
               <div key={i} className="flex items-center gap-3">
                 <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-brand-700 text-white"><DynIcon name={icon} className="h-5 w-5" /></span>
@@ -92,7 +92,7 @@ export default async function HomePage() {
         <section className="mx-auto max-w-7xl px-6 py-24">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <SectionTitle eyebrow={h.roomsEyebrow} title={h.roomsTitle} desc={h.roomsText} center={false} />
-            <Link href="/rooms" className="btn-ghost mb-12">همه {faNum(allRooms.length)} اتاق <ArrowLeft className="h-4 w-4" /></Link>
+            <Link href="/rooms" className="btn mb-12">همه {faNum(allRooms.length)} اتاق <ArrowLeft className="h-4 w-4" /></Link>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {featured.map((r) => <RoomCard key={r.id} room={r} />)}
@@ -110,7 +110,7 @@ export default async function HomePage() {
                 <MediaPlaylist items={h.poolMedia} fallback={pool?.image || "/images/pool.jpg"} indicatorClassName="bottom-4 right-4" />
               </div>
               {(h.poolBadgeTop || h.poolBadgeBottom) && (
-                <div className="glass absolute -bottom-6 left-6 flex items-center gap-3 rounded-2xl p-4">
+                <div className="frost absolute -bottom-6 left-6 flex items-center gap-3 rounded-2xl p-4">
                   <span className="grid h-12 w-12 place-items-center rounded-xl bg-gold-400 text-brand-950"><Waves className="h-6 w-6" /></span>
                   <div>
                     <div className="text-sm text-white/70">{h.poolBadgeTop}</div>
@@ -141,7 +141,7 @@ export default async function HomePage() {
                 </div>
               )}
               <div className="mt-8 flex flex-wrap items-center gap-4">
-                {pool && <Link href={`/services/${pool.slug}`} className="btn-gold px-6 py-3"><CalendarCheck className="h-4 w-4" /> {h.poolCta}</Link>}
+                {pool && <Link href={`/services/${pool.slug}`} className="btn btn-secondary px-6 h-12"><CalendarCheck className="h-4 w-4" /> {h.poolCta}</Link>}
                 {pool && minServicePrice(pool) > 0 && (
                   <span className="text-white/70">
                     از {formatPrice(minServicePrice(pool))} تومان · {pool.priceUnit}
@@ -171,7 +171,7 @@ export default async function HomePage() {
               ))}
             </div>
             <div className="mt-8 text-center">
-              <Link href="/amenities" className="btn-ghost">مشاهده همه امکانات <ArrowLeft className="h-4 w-4" /></Link>
+              <Link href="/amenities" className="btn">مشاهده همه امکانات <ArrowLeft className="h-4 w-4" /></Link>
             </div>
           </div>
         </section>
@@ -188,7 +188,7 @@ export default async function HomePage() {
                 <img src={sv.image || "/images/hero.jpg"} alt={sv.name} className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-brand-950/95 via-brand-950/30" />
                 <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-                  <span className="glass mb-3 grid h-11 w-11 place-items-center rounded-xl"><DynIcon name={sv.icon} className="h-5 w-5 text-gold-300" /></span>
+                  <span className="frost mb-3 grid h-11 w-11 place-items-center rounded-xl"><DynIcon name={sv.icon} className="h-5 w-5 text-gold-300" /></span>
                   <h3 className="text-lg font-extrabold">{sv.name}</h3>
                   <p className="mt-1 line-clamp-2 text-sm text-white/70">{sv.shortDescription}</p>
                   {sv.isBookable && <span className="mt-3 inline-block rounded-full bg-gold-400 px-3 py-1 text-xs font-bold text-brand-950">قابل رزرو آنلاین</span>}
@@ -208,7 +208,7 @@ export default async function HomePage() {
               {attractionList.slice(0, 4).map((a) => <AttractionCard key={a.id} a={a} />)}
             </div>
             <div className="mt-8 text-center">
-              <Link href="/attractions" className="btn-primary">نقشه و همه جاذبه‌ها <ArrowLeft className="h-4 w-4" /></Link>
+              <Link href="/attractions" className="btn btn-primary">نقشه و همه جاذبه‌ها <ArrowLeft className="h-4 w-4" /></Link>
             </div>
           </div>
         </section>
@@ -220,7 +220,7 @@ export default async function HomePage() {
           <SectionTitle eyebrow={h.reviewsEyebrow} title={h.reviewsTitle} />
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {reviews.slice(0, 4).map((t) => (
-              <figure key={t.id} className="card relative p-6">
+              <figure key={t.id} className="card card-border bg-base-100 shadow-sm relative p-6 block">
                 <Quote className="absolute left-5 top-5 h-8 w-8 text-brand-100" />
                 <div className="flex">{Array.from({ length: t.rating }).map((_, i) => <Star key={i} className="h-4 w-4 fill-gold-400 text-gold-400" />)}</div>
                 <blockquote className="mt-4 text-sm leading-7 text-slate-600">{t.body}</blockquote>
@@ -253,8 +253,8 @@ export default async function HomePage() {
               <h2 className="mt-3 text-3xl font-black">{h.mapTitle}</h2>
               <p className="mt-4 flex gap-2 leading-8 text-white/70"><MapPin className="mt-1.5 h-4 w-4 shrink-0 text-gold-300" />{s.address}</p>
               <div className="mt-8 flex flex-wrap gap-3">
-                {h.mapCta && <Link href="/booking" className="btn-gold">{h.mapCta}</Link>}
-                <a href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`} target="_blank" rel="noreferrer" className="btn glass text-white">مسیریابی</a>
+                {h.mapCta && <Link href="/booking" className="btn btn-secondary">{h.mapCta}</Link>}
+                <a href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`} target="_blank" rel="noreferrer" className="btn frost text-white">مسیریابی</a>
               </div>
             </div>
             <MapView center={{ lat, lng }} zoom={14} className="h-[420px]" markers={[{ lat, lng, title: s.hotelName, subtitle: s.address, kind: "hotel" }]} />

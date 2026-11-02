@@ -47,11 +47,11 @@ export default async function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="داشبورد" desc={`امروز ${formatJalali(today, true)}`} action={unread.c > 0 ? <Link href="/admin/messages" className="btn-ghost"><MessageSquare className="h-4 w-4" /> {faNum(unread.c)} پیام خوانده‌نشده</Link> : undefined} />
+      <PageHeader title="داشبورد" desc={`امروز ${formatJalali(today, true)}`} action={unread.c > 0 ? <Link href="/admin/messages" className="btn"><MessageSquare className="h-4 w-4" /> {faNum(unread.c)} پیام خوانده‌نشده</Link> : undefined} />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map(({ label, value, sub, Icon, tone, href }) => (
-          <Link key={label} href={href} className="card group relative overflow-hidden p-5 transition hover:-translate-y-0.5 hover:shadow-lg">
+          <Link key={label} href={href} className="card card-border bg-base-100 shadow-sm group relative overflow-hidden p-5 transition hover:-translate-y-0.5 hover:shadow-lg block">
             <div className={cn("absolute -left-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br opacity-15 transition group-hover:scale-125", tone)} />
             <span className={cn("grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br text-white shadow-lg", tone)}><Icon className="h-5 w-5" /></span>
             <div className="mt-4 text-sm text-slate-500">{label}</div>
@@ -61,7 +61,7 @@ export default async function Dashboard() {
         ))}
       </div>
 
-      <div className="card overflow-hidden">
+      <div className="card card-border bg-base-100 shadow-sm overflow-hidden block">
         <div className="flex items-center justify-between border-b border-slate-100 p-5">
           <h2 className="font-extrabold text-slate-900">تقویم اشغال اتاق‌ها (۱۴ روز آینده)</h2>
           <div className="flex gap-3 text-xs text-slate-500">
@@ -105,7 +105,7 @@ export default async function Dashboard() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-        <div className="card overflow-hidden">
+        <div className="card card-border bg-base-100 shadow-sm overflow-hidden block">
           <div className="flex items-center justify-between border-b border-slate-100 p-5">
             <h2 className="font-extrabold text-slate-900">آخرین درخواست‌ها</h2>
             <Link href="/admin/reservations" className="flex items-center gap-1 text-sm font-medium text-brand-700">همه <ArrowLeft className="h-4 w-4" /></Link>
@@ -135,7 +135,7 @@ export default async function Dashboard() {
           )}
         </div>
 
-        <div className="card overflow-hidden">
+        <div className="card card-border bg-base-100 shadow-sm overflow-hidden block">
           <div className="border-b border-slate-100 p-5">
             <h2 className="font-extrabold text-slate-900">سانس‌های امروز {pool?.name}</h2>
           </div>

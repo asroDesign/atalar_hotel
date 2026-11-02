@@ -98,7 +98,7 @@ export function TrackSection({ title, text, id = "track" }: { title: string; tex
         <div className="pointer-events-none absolute -bottom-32 right-1/3 h-72 w-72 rounded-full bg-brand-400/20 blur-3xl" />
         <div className="relative grid items-center gap-8 lg:grid-cols-[1.1fr_1fr]">
           <div className="text-white">
-            <span className="glass inline-flex h-14 w-14 items-center justify-center rounded-2xl">
+            <span className="frost inline-flex h-14 w-14 items-center justify-center rounded-2xl">
               <SearchCheck className="h-7 w-7 text-gold-300" />
             </span>
             <h2 className="mt-5 text-2xl font-black md:text-3xl">{title}</h2>

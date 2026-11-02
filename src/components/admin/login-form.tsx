@@ -1,34 +1,34 @@
 "use client";
 
 import { useActionState } from "react";
-import { Loader2, LogIn, Mail, Lock, AlertCircle } from "lucide-react";
+import { LogIn, Mail, Lock, AlertCircle } from "lucide-react";
 import { login } from "@/app/actions/admin";
 
 export function LoginForm() {
   const [state, action, pending] = useActionState(login, null);
   return (
     <form action={action} className="space-y-4">
-      <div>
-        <label className="label">ایمیل</label>
-        <div className="relative">
-          <Mail className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input name="email" type="email" dir="ltr" defaultValue="admin@atalar.ir" className="input pr-10 text-left" required />
-        </div>
-      </div>
-      <div>
-        <label className="label">رمز عبور</label>
-        <div className="relative">
-          <Lock className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input name="password" type="password" dir="ltr" defaultValue="admin123" className="input pr-10 text-left" required />
-        </div>
-      </div>
+      <fieldset className="fieldset">
+        <legend className="fieldset-legend">ایمیل</legend>
+        <label className="input w-full">
+          <Mail className="h-4 w-4 opacity-50" />
+          <input name="email" type="email" dir="ltr" defaultValue="admin@atalar.ir" className="grow text-left" required />
+        </label>
+      </fieldset>
+      <fieldset className="fieldset">
+        <legend className="fieldset-legend">رمز عبور</legend>
+        <label className="input w-full">
+          <Lock className="h-4 w-4 opacity-50" />
+          <input name="password" type="password" dir="ltr" defaultValue="admin123" className="grow text-left" required />
+        </label>
+      </fieldset>
       {state?.error && (
-        <div className="flex items-center gap-2 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700 ring-1 ring-rose-200">
-          <AlertCircle className="h-4 w-4" /> {state.error}
+        <div role="alert" className="alert alert-error alert-soft text-sm">
+          <AlertCircle className="h-4 w-4" /> <span>{state.error}</span>
         </div>
       )}
-      <button disabled={pending} className="btn-primary w-full py-3">
-        {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />} ورود به پنل
+      <button disabled={pending} className="btn btn-primary btn-block h-12">
+        {pending ? <span className="loading loading-spinner loading-sm" /> : <LogIn className="h-4 w-4" />} ورود به پنل
       </button>
     </form>
   );

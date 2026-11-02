@@ -64,8 +64,8 @@ export function BookingEditor({
                   ))}
                 </div>
               </div>
-              <input value={s.title} onChange={(e) => setStep(i, { title: e.target.value })} className="input mb-2 font-bold" placeholder="عنوان مرحله" />
-              <textarea value={s.text} onChange={(e) => setStep(i, { text: e.target.value })} rows={3} className="input" placeholder="توضیح مرحله" />
+              <input value={s.title} onChange={(e) => setStep(i, { title: e.target.value })} className="input w-full mb-2 font-bold" placeholder="عنوان مرحله" />
+              <textarea value={s.text} onChange={(e) => setStep(i, { text: e.target.value })} rows={3} className="textarea w-full" placeholder="توضیح مرحله" />
               <div className="mt-2 flex justify-end gap-1">
                 <button type="button" onClick={() => moveStep(i, -1)} disabled={i === 0} className="grid h-8 w-8 place-items-center rounded-lg bg-white text-slate-500 disabled:opacity-30"><ArrowUp className="h-3.5 w-3.5" /></button>
                 <button type="button" onClick={() => moveStep(i, 1)} disabled={i === c.steps.length - 1} className="grid h-8 w-8 place-items-center rounded-lg bg-white text-slate-500 disabled:opacity-30"><ArrowDown className="h-3.5 w-3.5" /></button>
@@ -74,10 +74,10 @@ export function BookingEditor({
             </li>
           ))}
         </ol>
-        <button type="button" onClick={() => set("steps", [...c.steps, { emoji: "✅", title: "", text: "" }])} className="btn-ghost"><Plus className="h-4 w-4" /> افزودن مرحله</button>
+        <button type="button" onClick={() => set("steps", [...c.steps, { emoji: "✅", title: "", text: "" }])} className="btn"><Plus className="h-4 w-4" /> افزودن مرحله</button>
         <div>
-          <label className="label flex items-center gap-1.5"><Info className="h-4 w-4 text-amber-600" /> متن «توجه»</label>
-          <textarea value={c.notice} onChange={(e) => set("notice", e.target.value)} rows={3} className="input border-amber-200 bg-amber-50/40" />
+          <label className="field-label flex items-center gap-1.5"><Info className="h-4 w-4 text-amber-600" /> متن «توجه»</label>
+          <textarea value={c.notice} onChange={(e) => set("notice", e.target.value)} rows={3} className="textarea w-full border-amber-200 bg-amber-50/40" />
         </div>
       </SectionCard>
 
@@ -99,8 +99,8 @@ export function BookingEditor({
       </SectionCard>
 
       <div className="fixed inset-x-4 bottom-4 z-30 flex flex-wrap items-center gap-3 rounded-2xl bg-white/90 p-3 shadow-2xl ring-1 ring-slate-200 backdrop-blur lg:right-[19rem]">
-        <SubmitButton className="btn-primary px-8"><Save className="h-4 w-4" /> ذخیره و انتشار</SubmitButton>
-        <Link href="/booking" target="_blank" className="btn-ghost"><ExternalLink className="h-4 w-4" /> مشاهده صفحه رزرو</Link>
+        <SubmitButton className="btn btn-primary px-8"><Save className="h-4 w-4" /> ذخیره و انتشار</SubmitButton>
+        <Link href="/booking" target="_blank" className="btn"><ExternalLink className="h-4 w-4" /> مشاهده صفحه رزرو</Link>
         <button
           type="button"
           disabled={resetting}

@@ -41,9 +41,9 @@ export default async function ServiceDetail({ params }: { params: Promise<{ slug
             </div>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
-            {svc.workingHours && <div className="card flex items-center gap-3 p-4 text-sm"><Clock className="h-5 w-5 text-brand-600" />{svc.workingHours}</div>}
-            {svc.isBookable && <div className="card flex items-center gap-3 p-4 text-sm"><Users className="h-5 w-5 text-brand-600" />حداکثر {faNum(svc.maxGuests)} نفر</div>}
-            {fromPrice > 0 && <div className="card p-4 text-sm"><span className="text-slate-500">{Object.keys(svc.slotPrices).length ? "از " : ""}</span><span className="font-black text-brand-700">{formatPrice(fromPrice)} تومان</span><span className="text-slate-500"> / {svc.priceUnit}</span></div>}
+            {svc.workingHours && <div className="card card-border bg-base-100 shadow-sm flex items-center gap-3 p-4 text-sm flex-row"><Clock className="h-5 w-5 text-brand-600" />{svc.workingHours}</div>}
+            {svc.isBookable && <div className="card card-border bg-base-100 shadow-sm flex items-center gap-3 p-4 text-sm flex-row"><Users className="h-5 w-5 text-brand-600" />حداکثر {faNum(svc.maxGuests)} نفر</div>}
+            {fromPrice > 0 && <div className="card card-border bg-base-100 shadow-sm p-4 text-sm block"><span className="text-slate-500">{Object.keys(svc.slotPrices).length ? "از " : ""}</span><span className="font-black text-brand-700">{formatPrice(fromPrice)} تومان</span><span className="text-slate-500"> / {svc.priceUnit}</span></div>}
           </div>
           <div className="space-y-4 leading-8 text-slate-600">
             {svc.description.split("\n").filter(Boolean).map((p, i) => <p key={i}>{p}</p>)}
@@ -85,7 +85,7 @@ export default async function ServiceDetail({ params }: { params: Promise<{ slug
         </div>
         <aside className="lg:sticky lg:top-28 lg:self-start">
           {svc.isBookable ? (
-            <div className="card overflow-hidden">
+            <div className="card card-border bg-base-100 shadow-sm overflow-hidden block">
               <div className="bg-gradient-to-l from-brand-800 to-brand-950 p-5 text-white">
                 <div className="text-sm text-white/70">رزرو {svc.name}</div>
                 <div className="mt-1 text-2xl font-black">{Object.keys(svc.slotPrices).length ? <span className="text-sm font-medium text-white/70">از </span> : null}{formatPrice(fromPrice)} <span className="text-sm font-medium text-white/70">تومان · {svc.priceUnit}</span></div>
@@ -104,11 +104,11 @@ export default async function ServiceDetail({ params }: { params: Promise<{ slug
               </div>
             </div>
           ) : (
-            <div className="card p-6 text-center">
+            <div className="card card-border bg-base-100 shadow-sm p-6 text-center block">
               <h3 className="font-extrabold text-slate-900">اطلاعات بیشتر</h3>
               <p className="mt-2 text-sm leading-7 text-slate-500">این خدمت برای مهمانان هتل در دسترس است. برای هماهنگی با پذیرش تماس بگیرید.</p>
-              <a href={`tel:${s.phone}`} className="btn-primary mt-4 w-full"><Phone className="h-4 w-4" /><span dir="ltr">{faNum(s.phone)}</span></a>
-              <Link href="/booking" className="btn-gold mt-2 w-full">رزرو اتاق</Link>
+              <a href={`tel:${s.phone}`} className="btn btn-primary mt-4 w-full"><Phone className="h-4 w-4" /><span dir="ltr">{faNum(s.phone)}</span></a>
+              <Link href="/booking" className="btn btn-secondary mt-2 w-full">رزرو اتاق</Link>
             </div>
           )}
         </aside>

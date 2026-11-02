@@ -70,12 +70,12 @@ export function JalaliDatePicker({
 
   return (
     <div className="relative" ref={ref}>
-      {label && <span className="label">{label}</span>}
+      {label && <span className="field-label">{label}</span>}
       <input type="hidden" name={name} value={value} />
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className={cn("input flex items-center justify-between text-right", !value && "text-slate-400")}
+        className={cn("input w-full flex items-center justify-between text-right", !value && "text-slate-400")}
       >
         <span>{value ? formatJalali(value, true) : placeholder}</span>
         <CalendarDays className="h-4 w-4 text-brand-600" />

@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, AlertCircle, Loader2, Send, CreditCard, Landmark, Copy, Search } from "lucide-react";
+import { CheckCircle2, AlertCircle, Send, CreditCard, Landmark, Copy, Search } from "lucide-react";
 import { sendMessage, payDeposit, lookupReservation } from "@/app/actions/public";
 import { cn, faNum, formatPrice } from "@/lib/utils";
 
@@ -10,14 +10,14 @@ function Alert({ state }: { state: { ok?: boolean; error?: string; message?: str
   if (!state) return null;
   if (state.error)
     return (
-      <div className="flex items-center gap-2 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700 ring-1 ring-rose-200">
-        <AlertCircle className="h-4 w-4 shrink-0" /> {state.error}
+      <div role="alert" className="alert alert-error alert-soft text-sm">
+        <AlertCircle className="h-4 w-4 shrink-0" /> <span>{state.error}</span>
       </div>
     );
   if (state.ok)
     return (
-      <div className="flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700 ring-1 ring-emerald-200">
-        <CheckCircle2 className="h-4 w-4 shrink-0" /> {state.message}
+      <div role="alert" className="alert alert-success alert-soft text-sm">
+        <CheckCircle2 className="h-4 w-4 shrink-0" /> <span>{state.message}</span>
       </div>
     );
   return null;
@@ -32,20 +32,20 @@ export function ContactForm() {
   return (
     <form ref={ref} action={action} className="grid gap-4 sm:grid-cols-2">
       <div>
-        <label className="label">نام و نام خانوادگی *</label>
-        <input name="name" className="input" required />
+        <label className="field-label">نام و نام خانوادگی *</label>
+        <input name="name" className="input w-full" required />
       </div>
       <div>
-        <label className="label">شماره تماس</label>
-        <input name="phone" className="input text-left" dir="ltr" />
+        <label className="field-label">شماره تماس</label>
+        <input name="phone" className="input w-full text-left" dir="ltr" />
       </div>
       <div>
-        <label className="label">ایمیل</label>
-        <input name="email" type="email" className="input text-left" dir="ltr" />
+        <label className="field-label">ایمیل</label>
+        <input name="email" type="email" className="input w-full text-left" dir="ltr" />
       </div>
       <div>
-        <label className="label">موضوع</label>
-        <select name="subject" className="input">
+        <label className="field-label">موضوع</label>
+        <select name="subject" className="select w-full">
           <option>سؤال درباره رزرو</option>
           <option>استخر خانوادگی</option>
           <option>رزرو گروهی و تخفیف</option>
@@ -54,15 +54,15 @@ export function ContactForm() {
         </select>
       </div>
       <div className="sm:col-span-2">
-        <label className="label">متن پیام *</label>
-        <textarea name="body" rows={5} className="input" required />
+        <label className="field-label">متن پیام *</label>
+        <textarea name="body" rows={5} className="textarea w-full" required />
       </div>
       <div className="sm:col-span-2">
         <Alert state={state} />
       </div>
       <div className="sm:col-span-2">
-        <button disabled={pending} className="btn-primary w-full py-3 sm:w-auto sm:px-10">
-          {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+        <button disabled={pending} className="btn btn-primary w-full h-12 sm:w-auto sm:px-10">
+          {pending ? <span className="loading loading-spinner loading-sm" /> : <Send className="h-4 w-4" />}
           {pending ? "در حال ارسال..." : "ارسال پیام"}
         </button>
       </div>
@@ -109,8 +109,8 @@ export function PaymentPanel({
             key={k}
             onClick={() => setMethod(k)}
             className={cn(
-              "flex flex-col items-center gap-2 rounded-2xl border-2 p-4 text-sm font-semibold transition",
-              method === k ? "border-brand-600 bg-brand-50 text-brand-800" : "border-slate-200 text-slate-600 hover:border-slate-300",
+              "btn h-auto flex-col gap-2 py-4",
+              method === k ? "btn-primary btn-soft border-2 border-primary" : "btn-outline border-base-300",
             )}
           >
             <Icon className="h-6 w-6" /> {label}
@@ -132,7 +132,7 @@ export function PaymentPanel({
                   setCopied(true);
                   setTimeout(() => setCopied(false), 1500);
                 }}
-                className="glass grid h-9 w-9 place-items-center rounded-lg"
+                className="frost grid h-9 w-9 place-items-center rounded-lg"
               >
                 {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               </button>
@@ -140,8 +140,8 @@ export function PaymentPanel({
             <div className="mt-3 text-sm text-white/80">به نام: {cardHolder}</div>
           </div>
           <div>
-            <label className="label">شماره پیگیری / مرجع تراکنش *</label>
-            <input name="ref" className="input text-left" dir="ltr" placeholder="مثلاً 123456" inputMode="numeric" />
+            <label className="field-label">شماره پیگیری / مرجع تراکنش *</label>
+            <input name="ref" className="input w-full text-left" dir="ltr" placeholder="مثلاً 123456" inputMode="numeric" />
           </div>
         </div>
       ) : (
@@ -152,8 +152,8 @@ export function PaymentPanel({
 
       <Alert state={state} />
 
-      <button disabled={pending} className="btn-gold w-full py-3.5 text-base">
-        {pending ? <Loader2 className="h-5 w-5 animate-spin" /> : <CreditCard className="h-5 w-5" />}
+      <button disabled={pending} className="btn btn-secondary w-full h-12 text-base">
+        {pending ? <span className="loading loading-spinner" /> : <CreditCard className="h-5 w-5" />}
         {method === "gateway" ? `پرداخت ${formatPrice(amount)} تومان` : "ثبت اطلاعات واریز"}
       </button>
     </form>
@@ -165,16 +165,16 @@ export function TrackLookup() {
   return (
     <form action={action} className="space-y-4">
       <div>
-        <label className="label">کد پیگیری یا کد رزرو</label>
-        <input name="code" className="input text-left font-mono uppercase" dir="ltr" placeholder="TR-XXXXXX" required />
+        <label className="field-label">کد پیگیری یا کد رزرو</label>
+        <input name="code" className="input w-full text-left font-mono uppercase" dir="ltr" placeholder="TR-XXXXXX" required />
       </div>
       <div>
-        <label className="label">شماره موبایل</label>
-        <input name="phone" className="input text-left" dir="ltr" placeholder="09121234567" required />
+        <label className="field-label">شماره موبایل</label>
+        <input name="phone" className="input w-full text-left" dir="ltr" placeholder="09121234567" required />
       </div>
       <Alert state={state} />
-      <button disabled={pending} className="btn-primary w-full py-3">
-        {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+      <button disabled={pending} className="btn btn-primary w-full h-12">
+        {pending ? <span className="loading loading-spinner loading-sm" /> : <Search className="h-4 w-4" />}
         پیگیری رزرو
       </button>
     </form>

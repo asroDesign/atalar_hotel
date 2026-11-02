@@ -20,12 +20,12 @@ export default async function LoginPage() {
           <h1 className="mt-4 text-2xl font-black">پنل مدیریت هتل آتالار</h1>
           <p className="mt-1 text-sm text-white/60">برای ادامه وارد حساب خود شوید</p>
         </div>
-        <div className="rounded-3xl bg-white p-7 shadow-2xl">
+        <div className="card bg-base-100 shadow-2xl"><div className="card-body">
           <LoginForm />
-          <div className="mt-5 rounded-xl bg-amber-50 p-3 text-center text-xs leading-6 text-amber-800">
+          <div role="alert" className="alert alert-warning alert-soft mt-3 justify-center text-xs">
             حساب نمایشی: admin@atalar.ir / admin123
           </div>
-        </div>
+        </div></div>
       </div>
     </div>
   );

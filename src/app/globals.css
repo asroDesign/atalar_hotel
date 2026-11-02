@@ -1,7 +1,62 @@
 @import "tailwindcss";
 
+/*
+ * Explicit sources: Tailwind v4 normally auto-detects files relative to the
+ * current working directory. Declaring them explicitly guarantees every class
+ * is generated no matter where `next build` is executed from (CI, Docker, ...).
+ */
+@source "../app";
+@source "../components";
+@source "../lib";
+
+/* ---------------- daisyUI ---------------- */
+@plugin "daisyui" {
+  themes: atalar --default;
+  logs: false;
+}
+
+@plugin "daisyui/theme" {
+  name: "atalar";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  --color-base-100: #ffffff;
+  --color-base-200: #f6f8f9;
+  --color-base-300: #e3e9ec;
+  --color-base-content: #1e293b;
+
+  --color-primary: #17665e;
+  --color-primary-content: #ffffff;
+  --color-secondary: #e9bb57;
+  --color-secondary-content: #062826;
+  --color-accent: #229e8d;
+  --color-accent-content: #ffffff;
+  --color-neutral: #154440;
+  --color-neutral-content: #ffffff;
+
+  --color-info: #0284c7;
+  --color-info-content: #ffffff;
+  --color-success: #059669;
+  --color-success-content: #ffffff;
+  --color-warning: #d97706;
+  --color-warning-content: #ffffff;
+  --color-error: #e11d48;
+  --color-error-content: #ffffff;
+
+  --radius-selector: 0.75rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1.25rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+/* ---------------- design tokens ---------------- */
 @theme {
-  --font-sans: "Vazirmatn", "Vazir", Tahoma, ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-vazirmatn), "Vazirmatn", Tahoma, ui-sans-serif, system-ui, sans-serif;
   --color-brand-50: #eefbf8;
   --color-brand-100: #d5f4ec;
   --color-brand-200: #aee8da;
@@ -19,7 +74,6 @@
   --color-gold-600: #bb7d2b;
   --animate-fade-up: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-float: float 6s ease-in-out infinite;
-  --animate-shimmer: shimmer 1.6s linear infinite;
 }
 
 @keyframes fade-up {
@@ -49,85 +103,62 @@
     transform: scale(1.08);
   }
 }
-@keyframes shimmer {
-  from {
-    background-position: -400px 0;
-  }
-  to {
-    background-position: 400px 0;
-  }
-}
 
 html {
   scroll-behavior: smooth;
 }
 
-body {
-  font-feature-settings: "ss01";
-}
-
-.glass {
-  background: rgba(255, 255, 255, 0.08);
+/* ---------------- custom utilities (no name clash with daisyUI) ---------------- */
+@utility frost {
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(18px) saturate(160%);
   -webkit-backdrop-filter: blur(18px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.glass-light {
-  background: rgba(255, 255, 255, 0.72);
+@utility frost-light {
+  background: rgba(255, 255, 255, 0.78);
   backdrop-filter: blur(18px) saturate(160%);
   -webkit-backdrop-filter: blur(18px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
-.text-gradient {
+@utility text-gradient {
   background: linear-gradient(120deg, #f3d38a, #e9bb57 40%, #fff 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
-.skeleton {
-  background: linear-gradient(90deg, #e2e8f0 0px, #f1f5f9 120px, #e2e8f0 240px);
-  background-size: 800px 100%;
-  animation: shimmer 1.6s linear infinite;
-}
-
-.pattern-dots {
+@utility pattern-dots {
   background-image: radial-gradient(rgba(23, 102, 94, 0.12) 1px, transparent 1px);
   background-size: 22px 22px;
 }
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
+@utility no-scrollbar {
   scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
-@utility input {
-  @apply w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15;
+@utility field-label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: color-mix(in oklab, var(--color-base-content) 80%, transparent);
 }
-@utility label {
-  @apply mb-1.5 block text-sm font-medium text-slate-700;
+
+/* daisyUI form controls: comfortable default size for Persian text */
+.input,
+.select {
+  font-size: 0.875rem;
 }
-@utility btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60;
-}
-@utility btn-primary {
-  @apply btn bg-brand-700 text-white shadow-lg shadow-brand-700/20 hover:bg-brand-800;
-}
-@utility btn-gold {
-  @apply btn bg-gradient-to-l from-gold-400 to-gold-500 text-brand-950 shadow-lg shadow-gold-500/25 hover:brightness-105;
-}
-@utility btn-ghost {
-  @apply btn border border-slate-200 bg-white text-slate-700 hover:bg-slate-50;
-}
-@utility btn-danger {
-  @apply btn bg-rose-600 text-white hover:bg-rose-700;
-}
-@utility card {
-  @apply rounded-2xl border border-slate-200/70 bg-white shadow-sm;
+.textarea {
+  font-size: 0.875rem;
+  line-height: 1.9;
 }
 
 .leaflet-container {

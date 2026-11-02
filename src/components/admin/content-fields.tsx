@@ -23,7 +23,7 @@ export function SectionCard({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <section className={cn("card overflow-hidden transition", visible === false && "opacity-70")}>
+    <section className={cn("card card-border bg-base-100 shadow-sm overflow-hidden transition block", visible === false && "opacity-70")}>
       <div className="flex items-center gap-3 p-4">
         <button type="button" onClick={() => setOpen((o) => !o)} className="flex flex-1 items-center gap-3 text-right">
           {icon && <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">{icon}</span>}
@@ -37,10 +37,7 @@ export function SectionCard({
           <button
             type="button"
             onClick={() => onToggleVisible(!visible)}
-            className={cn(
-              "flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition",
-              visible ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500",
-            )}
+            className={cn("btn btn-sm btn-soft", visible ? "btn-success" : "")}
           >
             {visible ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
             {visible ? "نمایش" : "مخفی"}
@@ -71,11 +68,11 @@ export function TextField({
 }) {
   return (
     <div>
-      <label className="label">{label}</label>
+      <label className="field-label">{label}</label>
       {area ? (
-        <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={rows} className="input" />
+        <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={rows} className="textarea w-full" />
       ) : (
-        <input value={value} onChange={(e) => onChange(e.target.value)} dir={ltr ? "ltr" : undefined} className={cn("input", ltr && "text-left")} />
+        <input value={value} onChange={(e) => onChange(e.target.value)} dir={ltr ? "ltr" : undefined} className={cn("input w-full", ltr && "text-left")} />
       )}
       {hint && <p className="mt-1 text-xs text-slate-400">{hint}</p>}
     </div>
@@ -84,20 +81,12 @@ export function TextField({
 
 export function Switch({ label, checked, onChange, hint }: { label: string; checked: boolean; onChange: (v: boolean) => void; hint?: string }) {
   return (
-    <label className="flex cursor-pointer items-center justify-between gap-4 rounded-xl bg-slate-50 px-4 py-3">
+    <label className="flex cursor-pointer items-center justify-between gap-4 rounded-box bg-base-200 px-4 py-3">
       <span>
-        <span className="block text-sm font-medium text-slate-700">{label}</span>
-        {hint && <span className="block text-xs text-slate-400">{hint}</span>}
+        <span className="block text-sm font-medium">{label}</span>
+        {hint && <span className="block text-xs text-base-content/50">{hint}</span>}
       </span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={cn("relative h-6 w-11 shrink-0 rounded-full transition", checked ? "bg-brand-600" : "bg-slate-300")}
-      >
-        <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all", checked ? "right-0.5" : "right-[22px]")} />
-      </button>
+      <input type="checkbox" className="toggle toggle-primary" checked={checked} onChange={(e) => onChange(e.target.checked)} />
     </label>
   );
 }

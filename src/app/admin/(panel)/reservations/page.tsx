@@ -29,7 +29,7 @@ export default async function ReservationsPage({ searchParams }: { searchParams:
 
   return (
     <div>
-      <PageHeader title="مدیریت رزروها" desc="بررسی پیش‌پرداخت‌ها، تایید و صدور کد رزرو" action={<Link href="/booking" target="_blank" className="btn-primary"><Plus className="h-4 w-4" /> ثبت رزرو جدید</Link>} />
+      <PageHeader title="مدیریت رزروها" desc="بررسی پیش‌پرداخت‌ها، تایید و صدور کد رزرو" action={<Link href="/booking" target="_blank" className="btn btn-primary"><Plus className="h-4 w-4" /> ثبت رزرو جدید</Link>} />
       <div className="no-scrollbar mb-4 flex gap-2 overflow-x-auto">
         {[undefined, "paid", "pending_payment", "confirmed", "rejected", "cancelled"].map((s) => (
           <Link key={s ?? "all"} href={link({ status: s })} className={cn("flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-sm font-medium transition", sp.status === s || (!sp.status && !s) ? "bg-brand-800 text-white shadow" : "bg-white text-slate-600 hover:bg-slate-50")}>
@@ -38,18 +38,18 @@ export default async function ReservationsPage({ searchParams }: { searchParams:
           </Link>
         ))}
       </div>
-      <form className="card mb-4 flex flex-col gap-3 p-3 sm:flex-row">
+      <form className="card card-border bg-base-100 shadow-sm mb-4 flex flex-col gap-3 p-3 sm:flex-row">
         {sp.status && <input type="hidden" name="status" value={sp.status} />}
         <div className="relative flex-1">
           <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input name="q" defaultValue={sp.q} placeholder="جستجو: نام، موبایل، کد پیگیری یا کد رزرو" className="input pr-10" />
+          <input name="q" defaultValue={sp.q} placeholder="جستجو: نام، موبایل، کد پیگیری یا کد رزرو" className="input w-full pr-10" />
         </div>
-        <select name="kind" defaultValue={sp.kind ?? ""} className="input sm:w-44">
+        <select name="kind" defaultValue={sp.kind ?? ""} className="select w-full sm:w-44">
           <option value="">همه انواع</option>
           <option value="room">اتاق</option>
           <option value="service">استخر / خدمات</option>
         </select>
-        <button className="btn-primary">اعمال</button>
+        <button className="btn btn-primary">اعمال</button>
       </form>
       <ReservationsTable key={JSON.stringify(sp) + list.length} initial={list} />
     </div>

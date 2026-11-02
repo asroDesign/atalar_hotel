@@ -36,7 +36,7 @@ export function SiteHeader({ hotelName, phone }: { hotelName: string; phone: str
       <div
         className={cn(
           "mx-auto flex max-w-7xl items-center justify-between rounded-2xl px-4 py-3 transition-all duration-500",
-          transparent ? "glass text-white" : "glass-light text-slate-800 shadow-lg shadow-slate-900/5",
+          transparent ? "frost text-white" : "frost-light text-slate-800 shadow-lg shadow-slate-900/5",
         )}
       >
         <Link href="/" className="flex items-center gap-2.5">
@@ -98,7 +98,7 @@ export function SiteHeader({ hotelName, phone }: { hotelName: string; phone: str
             <Phone className="h-4 w-4" />
             <span dir="ltr">{faNum(phone)}</span>
           </a>
-          <Link href="/booking" className="btn-gold hidden sm:inline-flex">
+          <Link href="/booking" className="btn btn-secondary hidden sm:inline-flex">
             <CalendarCheck className="h-4 w-4" />
             رزرو آنلاین
           </Link>
@@ -113,7 +113,7 @@ export function SiteHeader({ hotelName, phone }: { hotelName: string; phone: str
       </div>
 
       {open && (
-        <div className="glass-light mx-auto mt-2 max-w-7xl animate-fade-up rounded-2xl p-3 shadow-xl lg:hidden">
+        <div className="frost-light mx-auto mt-2 max-w-7xl animate-fade-up rounded-2xl p-3 shadow-xl lg:hidden">
           <div className="grid grid-cols-2 gap-2">
             {links.map((l) => (
               <Link key={l.href} href={l.href} className="rounded-xl bg-white/70 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-white">
@@ -124,7 +124,7 @@ export function SiteHeader({ hotelName, phone }: { hotelName: string; phone: str
               پیگیری رزرو
             </Link>
           </div>
-          <Link href="/booking" className="btn-gold mt-3 w-full">
+          <Link href="/booking" className="btn btn-secondary mt-3 w-full">
             <CalendarCheck className="h-4 w-4" /> رزرو آنلاین
           </Link>
         </div>

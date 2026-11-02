@@ -1,7 +1,17 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import localFont from "next/font/local";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
+
+const vazirmatn = localFont({
+  src: "../fonts/Vazirmatn-Variable.woff2",
+  weight: "100 900",
+  style: "normal",
+  display: "swap",
+  variable: "--font-vazirmatn",
+  fallback: ["Tahoma", "system-ui", "sans-serif"],
+});
 
 export const metadata: Metadata = {
   title: {
@@ -18,14 +28,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="fa" dir="rtl">
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css"
-        />
-      </head>
-      <body className="bg-slate-50 font-sans text-slate-800 antialiased">{children}</body>
+    <html lang="fa" dir="rtl" data-theme="atalar" className={vazirmatn.variable}>
+      <body className="bg-base-200 font-sans text-base-content antialiased">{children}</body>
     </html>
   );
 }

@@ -12,7 +12,7 @@ export default async function AdminRooms({ searchParams }: { searchParams: Promi
   const list = await db.select().from(rooms).orderBy(asc(rooms.sortOrder), asc(rooms.id));
   return (
     <div>
-      <PageHeader title="اتاق‌ها" desc={`${faNum(list.length)} اتاق تعریف شده · ${faNum(list.filter((r) => r.isActive).length)} فعال`} action={<Link href="/admin/rooms/new" className="btn-primary"><Plus className="h-4 w-4" /> افزودن اتاق</Link>} />
+      <PageHeader title="اتاق‌ها" desc={`${faNum(list.length)} اتاق تعریف شده · ${faNum(list.filter((r) => r.isActive).length)} فعال`} action={<Link href="/admin/rooms/new" className="btn btn-primary"><Plus className="h-4 w-4" /> افزودن اتاق</Link>} />
       {sp.saved && <div className="mb-4 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700 ring-1 ring-emerald-200">اتاق با موفقیت ذخیره شد.</div>}
       <RoomsGrid key={list.map((r) => `${r.id}${r.isActive}${r.isFeatured}`).join()} initial={list} />
     </div>

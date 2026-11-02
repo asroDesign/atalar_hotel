@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { and, eq } from "drizzle-orm";
-import { CheckCircle2, ClipboardList, CreditCard, FileCheck2, PartyPopper, XCircle, Printer, Clock } from "lucide-react";
+import { CheckCircle2, ClipboardList, CreditCard, FileCheck2, PartyPopper, Printer, Clock } from "lucide-react";
 import { db } from "@/db";
 import { reservations } from "@/db/schema";
 import { getSettings } from "@/lib/data";
@@ -41,7 +41,7 @@ export default async function TrackDetail({
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-96 bg-gradient-to-b from-brand-950 to-brand-800" />
       <div className="mx-auto max-w-4xl px-6">
         {sp.new && r.status === "pending_payment" && (
-          <div className="mb-6 flex animate-fade-up items-center gap-3 rounded-2xl bg-emerald-500 p-4 text-white shadow-xl">
+          <div role="alert" className="alert alert-success mb-6 animate-fade-up shadow-xl">
             <PartyPopper className="h-6 w-6 shrink-0" />
             <div className="text-sm leading-7">
               درخواست شما ثبت شد. کد پیگیری <b className="font-mono">{r.trackingCode}</b> را یادداشت کنید و برای قطعی شدن، پیش‌پرداخت را انجام دهید.
@@ -49,33 +49,35 @@ export default async function TrackDetail({
           </div>
         )}
 
-        <div className="card overflow-hidden shadow-2xl">
+        <div className="card card-border bg-base-100 shadow-sm overflow-hidden shadow-2xl block">
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 p-6">
             <div>
               <div className="text-xs text-slate-500">کد پیگیری</div>
               <div className="font-mono text-2xl font-black text-slate-900" dir="ltr">{r.trackingCode}</div>
             </div>
-            <span className={cn("inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold ring-1", meta.className)}>
-              <span className={cn("h-2 w-2 rounded-full", meta.dot)} /> {meta.label}
+            <span className={cn("badge badge-soft badge-lg gap-2 font-semibold", meta.badge)}>
+              <span className={cn("status", meta.dot)} /> {meta.label}
             </span>
           </div>
 
-          {/* Stepper */}
-          <div className="grid grid-cols-4 gap-2 bg-slate-50 px-4 py-6 sm:px-8">
-            {steps.map(({ Icon, t }, i) => {
-              const done = !failed && i < stepIndex;
-              const current = !failed && i === stepIndex;
-              const bad = failed && i === stepIndex;
-              return (
-                <div key={t} className="relative flex flex-col items-center text-center">
-                  {i < steps.length - 1 && <div className={cn("absolute top-5 h-0.5", done && i + 1 < stepIndex ? "bg-brand-600" : "bg-slate-200")} style={{ left: "-50%", right: "50%" }} />}
-                  <span className={cn("relative z-10 grid h-10 w-10 place-items-center rounded-full ring-4 ring-slate-50", done ? "bg-brand-600 text-white" : bad ? "bg-rose-500 text-white" : current ? "bg-gold-400 text-brand-950" : "bg-slate-200 text-slate-500")}>
-                    {bad ? <XCircle className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
-                  </span>
-                  <span className={cn("mt-2 text-xs font-medium", done || current ? "text-slate-800" : "text-slate-400")}>{t}</span>
-                </div>
-              );
-            })}
+          {/* Stepper (daisyUI steps) */}
+          <div className="bg-base-200/60 px-2 py-6 sm:px-6">
+            <ul className="steps w-full text-xs font-medium">
+              {steps.map(({ t }, i) => {
+                const done = !failed && i < stepIndex;
+                const current = !failed && i === stepIndex;
+                const bad = failed && i === stepIndex;
+                return (
+                  <li
+                    key={t}
+                    data-content={bad ? "✕" : done ? "✓" : faNum(i + 1)}
+                    className={cn("step", done && "step-primary", current && "step-secondary", bad && "step-error", !done && !current && !bad && "text-base-content/40")}
+                  >
+                    {t}
+                  </li>
+                );
+              })}
+            </ul>
           </div>
 
           {r.status === "confirmed" && r.reservationCode && (
@@ -87,13 +89,13 @@ export default async function TrackDetail({
             </div>
           )}
           {r.status === "paid" && (
-            <div className="m-6 flex items-start gap-3 rounded-2xl bg-sky-50 p-5 text-sm leading-7 text-sky-800 ring-1 ring-sky-200">
+            <div role="alert" className="alert alert-info alert-soft m-6 items-start text-sm leading-7">
               <Clock className="mt-1 h-5 w-5 shrink-0" />
               پیش‌پرداخت شما ثبت شد و در صف بررسی پذیرش است. پس از تایید، کد رزرو در همین صفحه نمایش داده می‌شود. توجه: تا قبل از صدور کد رزرو، رزرو قطعی نیست.
             </div>
           )}
           {failed && (
-            <div className="m-6 rounded-2xl bg-rose-50 p-5 text-sm leading-7 text-rose-800 ring-1 ring-rose-200">
+            <div role="alert" className="alert alert-error alert-soft m-6 block text-sm leading-7">
               این درخواست {r.status === "rejected" ? "توسط پذیرش رد شده" : "لغو شده"} است. {r.adminNote && <>توضیح: {r.adminNote}</>} در صورت پرداخت، مبلغ طی ۷۲ ساعت عودت داده می‌شود. برای اطلاعات بیشتر با <span dir="ltr">{faNum(s.phone)}</span> تماس بگیرید.
             </div>
           )}
@@ -132,8 +134,8 @@ export default async function TrackDetail({
               ) : (
                 <div className="flex h-full flex-col justify-center gap-3 rounded-3xl bg-slate-50 p-6 text-center text-sm text-slate-600">
                   <p>برای هرگونه تغییر یا لغو، با پذیرش هتل تماس بگیرید.</p>
-                  <a href={`tel:${s.phone}`} className="btn-primary" dir="ltr">{faNum(s.phone)}</a>
-                  <Link href="/" className="btn-ghost">بازگشت به صفحه اصلی</Link>
+                  <a href={`tel:${s.phone}`} className="btn btn-primary" dir="ltr">{faNum(s.phone)}</a>
+                  <Link href="/" className="btn">بازگشت به صفحه اصلی</Link>
                   {r.status === "confirmed" && <span className="flex items-center justify-center gap-1 text-xs text-slate-400"><Printer className="h-3.5 w-3.5" /> برای چاپ از Ctrl+P استفاده کنید</span>}
                 </div>
               )}

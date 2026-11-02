@@ -39,10 +39,10 @@ export function ReservationsTable({ initial }: { initial: Reservation[] }) {
 
   return (
     <>
-      <div className="card overflow-hidden">
+      <div className="card card-border bg-base-100 shadow-sm overflow-hidden block">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] text-sm">
-            <thead className="bg-slate-50 text-xs text-slate-500">
+          <table className="table min-w-[900px]">
+            <thead className="bg-base-200 text-xs">
               <tr>
                 <th className="px-4 py-3 text-right font-medium">مهمان</th>
                 <th className="px-4 py-3 text-right font-medium">مورد رزرو</th>
@@ -52,9 +52,9 @@ export function ReservationsTable({ initial }: { initial: Reservation[] }) {
                 <th className="px-4 py-3 text-left font-medium">عملیات</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody>
               {items.map((r) => (
-                <tr key={r.id} className="transition hover:bg-slate-50/70">
+                <tr key={r.id} className="hover:bg-base-200/50">
                   <td className="px-4 py-3">
                     <div className="font-bold text-slate-800">{r.guestName}</div>
                     <div className="text-xs text-slate-500" dir="ltr" style={{ textAlign: "right" }}>{faNum(r.phone)}</div>
@@ -87,19 +87,19 @@ export function ReservationsTable({ initial }: { initial: Reservation[] }) {
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-1">
                       {(r.status === "paid" || r.status === "pending_payment") && (
-                        <button onClick={() => changeStatus(r.id, "confirmed")} title="تایید و صدور کد رزرو" className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100">
+                        <button onClick={() => changeStatus(r.id, "confirmed")} title="تایید و صدور کد رزرو" className="btn btn-square btn-sm btn-soft btn-success">
                           <Check className="h-4 w-4" />
                         </button>
                       )}
                       {r.status !== "rejected" && r.status !== "cancelled" && (
-                        <button onClick={() => changeStatus(r.id, "rejected")} title="رد درخواست" className="grid h-8 w-8 place-items-center rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100">
+                        <button onClick={() => changeStatus(r.id, "rejected")} title="رد درخواست" className="btn btn-square btn-sm btn-soft btn-warning">
                           <X className="h-4 w-4" />
                         </button>
                       )}
-                      <Link href={`/admin/reservations/${r.id}`} title="جزئیات" className="grid h-8 w-8 place-items-center rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">
+                      <Link href={`/admin/reservations/${r.id}`} title="جزئیات" className="btn btn-square btn-sm btn-soft">
                         <Eye className="h-4 w-4" />
                       </Link>
-                      <button onClick={() => remove(r.id)} title="حذف" className="grid h-8 w-8 place-items-center rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100">
+                      <button onClick={() => remove(r.id)} title="حذف" className="btn btn-square btn-sm btn-soft btn-error">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>

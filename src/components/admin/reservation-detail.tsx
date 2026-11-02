@@ -2,7 +2,7 @@
 
 import { useActionState, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { BadgeCheck, CreditCard, XCircle, Ban, RotateCcw, Trash2, Loader2 } from "lucide-react";
+import { BadgeCheck, CreditCard, XCircle, Ban, RotateCcw, Trash2 } from "lucide-react";
 import type { Reservation, ReservationStatus } from "@/db/schema";
 import { setReservationStatus, deleteReservation, updateReservation } from "@/app/actions/admin";
 import { FormAlert, StatusBadge, SubmitButton, Toast } from "./ui";
@@ -33,13 +33,13 @@ export function ReservationActions({ r }: { r: Reservation }) {
     });
 
   const btn = (s: ReservationStatus, label: string, Icon: typeof BadgeCheck, cls: string) => (
-    <button disabled={pending || status === s} onClick={() => go(s)} className={`btn w-full justify-start ${cls}`}>
-      {busy === s ? <Loader2 className="h-4 w-4 animate-spin" /> : <Icon className="h-4 w-4" />} {label}
+    <button disabled={pending || status === s} onClick={() => go(s)} className={`btn btn-block justify-start ${cls}`}>
+      {busy === s ? <span className="loading loading-spinner loading-sm" /> : <Icon className="h-4 w-4" />} {label}
     </button>
   );
 
   return (
-    <div className="card space-y-4 p-5">
+    <div className="card card-border bg-base-100 shadow-sm space-y-4 p-5 block">
       <div className="flex items-center justify-between">
         <h3 className="font-extrabold text-slate-900">وضعیت</h3>
         <StatusBadge status={status} />
@@ -50,16 +50,16 @@ export function ReservationActions({ r }: { r: Reservation }) {
           <div className="mt-1 font-mono text-2xl font-black tracking-widest text-gold-300" dir="ltr">{code}</div>
         </div>
       ) : (
-        <p className="rounded-xl bg-amber-50 p-3 text-xs leading-6 text-amber-800">
+        <p role="alert" className="alert alert-warning alert-soft text-xs leading-6">
           تا زمان تایید و صدور کد رزرو، این رزرو قطعی نیست. پیش از تایید، پیش‌پرداخت را با مرجع تراکنش تطبیق دهید.
         </p>
       )}
       <div className="space-y-2">
-        {btn("confirmed", "تایید پذیرش و صدور کد رزرو", BadgeCheck, "bg-emerald-600 text-white hover:bg-emerald-700")}
-        {btn("paid", "ثبت دستی پرداخت (منتظر تایید)", CreditCard, "bg-sky-50 text-sky-700 hover:bg-sky-100")}
-        {btn("pending_payment", "بازگشت به انتظار پرداخت", RotateCcw, "bg-slate-100 text-slate-700 hover:bg-slate-200")}
-        {btn("rejected", "رد درخواست", XCircle, "bg-amber-50 text-amber-700 hover:bg-amber-100")}
-        {btn("cancelled", "لغو رزرو", Ban, "bg-slate-100 text-slate-700 hover:bg-slate-200")}
+        {btn("confirmed", "تایید پذیرش و صدور کد رزرو", BadgeCheck, "btn-success")}
+        {btn("paid", "ثبت دستی پرداخت (منتظر تایید)", CreditCard, "btn-info btn-soft")}
+        {btn("pending_payment", "بازگشت به انتظار پرداخت", RotateCcw, "btn-soft")}
+        {btn("rejected", "رد درخواست", XCircle, "btn-warning btn-soft")}
+        {btn("cancelled", "لغو رزرو", Ban, "btn-neutral btn-soft")}
       </div>
       <button
         onClick={() => {
@@ -69,7 +69,7 @@ export function ReservationActions({ r }: { r: Reservation }) {
             router.push("/admin/reservations");
           });
         }}
-        className="btn w-full text-rose-600 hover:bg-rose-50"
+        className="btn btn-ghost btn-block text-error"
       >
         <Trash2 className="h-4 w-4" /> حذف رزرو
       </button>
@@ -81,20 +81,20 @@ export function ReservationActions({ r }: { r: Reservation }) {
 export function ReservationEditForm({ r }: { r: Reservation }) {
   const [state, action] = useActionState(updateReservation, null);
   return (
-    <form action={action} className="card space-y-4 p-5">
+    <form action={action} className="card card-border bg-base-100 shadow-sm space-y-4 p-5 block">
       <h3 className="font-extrabold text-slate-900">ویرایش اطلاعات</h3>
       <input type="hidden" name="id" value={r.id} />
       <div className="grid gap-4 sm:grid-cols-2">
-        <div><label className="label">نام مهمان</label><input name="guestName" defaultValue={r.guestName} className="input" /></div>
-        <div><label className="label">موبایل</label><input name="phone" defaultValue={r.phone} dir="ltr" className="input text-left" /></div>
-        <div><label className="label">ایمیل</label><input name="email" defaultValue={r.email} dir="ltr" className="input text-left" /></div>
-        <div><label className="label">کد ملی</label><input name="nationalId" defaultValue={r.nationalId} dir="ltr" className="input text-left" /></div>
-        <div><label className="label">تعداد نفرات</label><input name="guests" type="number" min={1} defaultValue={r.guests} className="input" /></div>
-        <div><label className="label">مرجع پرداخت</label><input name="paymentRef" defaultValue={r.paymentRef} dir="ltr" className="input text-left" /></div>
-        <div><label className="label">مبلغ کل (تومان)</label><input name="totalPrice" type="number" defaultValue={r.totalPrice} className="input" /></div>
-        <div><label className="label">پیش‌پرداخت (تومان)</label><input name="depositAmount" type="number" defaultValue={r.depositAmount} className="input" /></div>
+        <div><label className="field-label">نام مهمان</label><input name="guestName" defaultValue={r.guestName} className="input w-full" /></div>
+        <div><label className="field-label">موبایل</label><input name="phone" defaultValue={r.phone} dir="ltr" className="input w-full text-left" /></div>
+        <div><label className="field-label">ایمیل</label><input name="email" defaultValue={r.email} dir="ltr" className="input w-full text-left" /></div>
+        <div><label className="field-label">کد ملی</label><input name="nationalId" defaultValue={r.nationalId} dir="ltr" className="input w-full text-left" /></div>
+        <div><label className="field-label">تعداد نفرات</label><input name="guests" type="number" min={1} defaultValue={r.guests} className="input w-full" /></div>
+        <div><label className="field-label">مرجع پرداخت</label><input name="paymentRef" defaultValue={r.paymentRef} dir="ltr" className="input w-full text-left" /></div>
+        <div><label className="field-label">مبلغ کل (تومان)</label><input name="totalPrice" type="number" defaultValue={r.totalPrice} className="input w-full" /></div>
+        <div><label className="field-label">پیش‌پرداخت (تومان)</label><input name="depositAmount" type="number" defaultValue={r.depositAmount} className="input w-full" /></div>
       </div>
-      <div><label className="label">یادداشت مدیر (برای رد/لغو به مهمان نمایش داده می‌شود)</label><textarea name="adminNote" rows={3} defaultValue={r.adminNote} className="input" /></div>
+      <div><label className="field-label">یادداشت مدیر (برای رد/لغو به مهمان نمایش داده می‌شود)</label><textarea name="adminNote" rows={3} defaultValue={r.adminNote} className="textarea w-full" /></div>
       <FormAlert state={state} />
       <SubmitButton>ذخیره تغییرات</SubmitButton>
     </form>

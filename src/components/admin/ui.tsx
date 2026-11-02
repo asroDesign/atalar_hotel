@@ -18,7 +18,6 @@ import {
   X,
   ExternalLink,
   Star,
-  Loader2,
   Upload,
   Trash2,
   Plus,
@@ -67,40 +66,43 @@ export function AdminShell({
           <div className="text-xs text-white/50">Atalar Admin</div>
         </div>
       </div>
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3">
-        {nav.map(({ href, label, Icon, badge }) => {
-          const active = href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
-          const n = badge ? counts[badge] : 0;
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition",
-                active ? "bg-white text-brand-900 shadow-lg" : "text-white/70 hover:bg-white/10 hover:text-white",
-              )}
-            >
-              <Icon className="h-[18px] w-[18px]" />
-              <span className="flex-1">{label}</span>
-              {n > 0 && <span className="rounded-full bg-gold-400 px-2 py-0.5 text-[11px] font-bold text-brand-950">{faNum(n)}</span>}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 overflow-y-auto px-2">
+        <ul className="menu w-full gap-1 text-white/75">
+          {nav.map(({ href, label, Icon, badge }) => {
+            const active = href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
+            const n = badge ? counts[badge] : 0;
+            return (
+              <li key={href}>
+                <Link
+                  href={href}
+                  className={cn(
+                    "rounded-field py-2.5 font-medium",
+                    active ? "menu-active !bg-base-100 !text-primary shadow-lg" : "hover:bg-white/10 hover:text-white",
+                  )}
+                >
+                  <Icon className="h-[18px] w-[18px]" />
+                  <span className="flex-1">{label}</span>
+                  {n > 0 && <span className="badge badge-secondary badge-sm font-bold">{faNum(n)}</span>}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </nav>
       <div className="m-3 rounded-2xl bg-white/5 p-3">
         <div className="flex items-center gap-3">
-          <span className="grid h-9 w-9 place-items-center rounded-full bg-brand-500 font-bold text-white">{admin.name[0]}</span>
+          <div className="avatar avatar-placeholder"><div className="w-9 rounded-full bg-accent text-accent-content"><span className="font-bold">{admin.name[0]}</span></div></div>
           <div className="min-w-0 flex-1">
             <div className="truncate text-sm font-semibold text-white">{admin.name}</div>
             <div className="truncate text-xs text-white/50">{admin.email}</div>
           </div>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2">
-          <Link href="/" target="_blank" className="flex items-center justify-center gap-1 rounded-lg bg-white/10 py-2 text-xs text-white hover:bg-white/20">
+          <Link href="/" target="_blank" className="btn btn-sm border-0 bg-white/10 text-xs text-white hover:bg-white/20">
             <ExternalLink className="h-3.5 w-3.5" /> مشاهده سایت
           </Link>
           <form action={logout}>
-            <button className="flex w-full items-center justify-center gap-1 rounded-lg bg-rose-500/20 py-2 text-xs text-rose-200 hover:bg-rose-500/30">
+            <button className="btn btn-sm btn-block border-0 bg-error/20 text-xs text-rose-200 hover:bg-error/30">
               <LogOut className="h-3.5 w-3.5" /> خروج
             </button>
           </form>
@@ -110,7 +112,7 @@ export function AdminShell({
   );
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-base-200">
       <aside className="fixed inset-y-0 right-0 z-40 hidden w-72 bg-gradient-to-b from-brand-900 to-brand-950 lg:block">{sidebar}</aside>
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden">
@@ -119,8 +121,8 @@ export function AdminShell({
         </div>
       )}
       <div className="lg:pr-72">
-        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-slate-200 bg-white/80 px-4 py-3 backdrop-blur lg:hidden">
-          <button onClick={() => setOpen(true)} className="grid h-10 w-10 place-items-center rounded-xl bg-slate-100">
+        <header className="navbar sticky top-0 z-30 gap-3 border-b border-base-300 bg-base-100/80 px-4 backdrop-blur lg:hidden">
+          <button onClick={() => setOpen(true)} className="btn btn-square btn-ghost">
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
           <span className="font-extrabold text-slate-800">پنل مدیریت آتالار</span>
@@ -146,18 +148,18 @@ export function PageHeader({ title, desc, action }: { title: string; desc?: stri
 export function StatusBadge({ status }: { status: string }) {
   const m = statusMeta[status] ?? statusMeta.cancelled;
   return (
-    <span className={cn("inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ring-1", m.className)}>
-      <span className={cn("h-1.5 w-1.5 rounded-full", m.dot)} />
+    <span className={cn("badge badge-soft badge-sm h-auto gap-1.5 whitespace-nowrap py-1 font-semibold", m.badge)}>
+      <span className={cn("status status-xs", m.dot)} />
       {m.label}
     </span>
   );
 }
 
-export function SubmitButton({ children, className = "btn-primary" }: { children: ReactNode; className?: string }) {
+export function SubmitButton({ children, className = "btn btn-primary" }: { children: ReactNode; className?: string }) {
   const { pending } = useFormStatus();
   return (
     <button type="submit" disabled={pending} className={className}>
-      {pending && <Loader2 className="h-4 w-4 animate-spin" />}
+      {pending && <span className="loading loading-spinner loading-sm" />}
       {children}
     </button>
   );
@@ -167,14 +169,14 @@ export function FormAlert({ state }: { state: { ok?: boolean; error?: string; me
   if (!state) return null;
   if (state.error)
     return (
-      <div className="flex items-center gap-2 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700 ring-1 ring-rose-200">
-        <AlertCircle className="h-4 w-4" /> {state.error}
+      <div role="alert" className="alert alert-error alert-soft text-sm">
+        <AlertCircle className="h-4 w-4" /> <span>{state.error}</span>
       </div>
     );
   if (state.ok)
     return (
-      <div className="flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700 ring-1 ring-emerald-200">
-        <CheckCircle2 className="h-4 w-4" /> {state.message}
+      <div role="alert" className="alert alert-success alert-soft text-sm">
+        <CheckCircle2 className="h-4 w-4" /> <span>{state.message}</span>
       </div>
     );
   return null;
@@ -188,20 +190,24 @@ export function Toast({ message, onDone, tone = "success" }: { message: string |
   }, [message, onDone]);
   if (!message) return null;
   return (
-    <div className={cn("fixed bottom-6 left-6 z-[90] flex animate-fade-up items-center gap-2 rounded-2xl px-5 py-3 text-sm font-medium text-white shadow-2xl", tone === "success" ? "bg-brand-800" : "bg-rose-600")}>
-      {tone === "success" ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
-      {message}
+    <div className="toast toast-end toast-bottom z-[90]">
+      <div role="alert" className={cn("alert animate-fade-up shadow-2xl", tone === "success" ? "alert-success" : "alert-error")}>
+        {tone === "success" ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+        <span>{message}</span>
+      </div>
     </div>
   );
 }
 
 export function EmptyBox({ title, desc, action, icon }: { title: string; desc?: string; action?: ReactNode; icon?: ReactNode }) {
   return (
-    <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-white px-6 py-14 text-center">
-      <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-slate-100 text-slate-400">{icon ?? <ImageIcon className="h-6 w-6" />}</div>
-      <h3 className="mt-4 font-bold text-slate-800">{title}</h3>
-      {desc && <p className="mt-1 text-sm text-slate-500">{desc}</p>}
-      {action && <div className="mt-5">{action}</div>}
+    <div className="card card-dash border-base-300 bg-base-100">
+      <div className="card-body items-center py-14 text-center">
+        <div className="grid h-14 w-14 place-items-center rounded-box bg-base-200 text-base-content/40">{icon ?? <ImageIcon className="h-6 w-6" />}</div>
+        <h3 className="card-title mt-2 text-base">{title}</h3>
+        {desc && <p className="text-sm text-base-content/60">{desc}</p>}
+        {action && <div className="card-actions mt-3">{action}</div>}
+      </div>
     </div>
   );
 }
@@ -262,7 +268,7 @@ export function ImageListInput({ name, initial, single = false }: { name: string
         </div>
       )}
       <div className="flex flex-col gap-2 sm:flex-row">
-        <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="آدرس تصویر (https://...)" dir="ltr" className="input flex-1 text-left" />
+        <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="آدرس تصویر (https://...)" dir="ltr" className="input w-full flex-1 text-left" />
         <button
           type="button"
           onClick={() => {
@@ -271,12 +277,12 @@ export function ImageListInput({ name, initial, single = false }: { name: string
               setUrl("");
             }
           }}
-          className="btn-ghost"
+          className="btn"
         >
           <Plus className="h-4 w-4" /> افزودن لینک
         </button>
-        <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading} className="btn-ghost">
-          {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />} آپلود
+        <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading} className="btn">
+          {uploading ? <span className="loading loading-spinner loading-sm" /> : <Upload className="h-4 w-4" />} آپلود
         </button>
         <input ref={fileRef} type="file" accept="image/*" multiple={!single} hidden onChange={(e) => onFiles(e.target.files)} />
       </div>
@@ -294,15 +300,15 @@ export function Modal({ open, onClose, title, children }: { open: boolean; onClo
   }, [open, onClose]);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[80] flex items-end justify-center p-0 sm:items-center sm:p-4">
-      <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative max-h-[92vh] w-full max-w-xl animate-fade-up overflow-y-auto rounded-t-3xl bg-white p-6 shadow-2xl sm:rounded-3xl">
+    <div className="modal modal-open modal-bottom z-[80] sm:modal-middle" role="dialog">
+      <div className="modal-box max-h-[92vh] max-w-xl">
         <div className="mb-5 flex items-center justify-between">
-          <h3 className="text-lg font-extrabold text-slate-900">{title}</h3>
-          <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-xl bg-slate-100 hover:bg-slate-200"><X className="h-4 w-4" /></button>
+          <h3 className="text-lg font-extrabold">{title}</h3>
+          <button type="button" onClick={onClose} className="btn btn-circle btn-ghost btn-sm"><X className="h-4 w-4" /></button>
         </div>
         {children}
       </div>
+      <button type="button" className="modal-backdrop bg-neutral/50 backdrop-blur-sm" onClick={onClose} aria-label="بستن" />
     </div>
   );
 }

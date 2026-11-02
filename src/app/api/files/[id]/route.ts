@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { uploads } from "@/db/schema";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const CHUNK = 4 * 1024 * 1024;
 

@@ -41,7 +41,7 @@ export default async function AmenitiesPage() {
             <h3 className="text-2xl font-black">آماده تجربه آتالار هستید؟</h3>
             <p className="mt-2 text-white/70">همین حالا اتاق یا سانس استخر خانوادگی خود را رزرو کنید.</p>
           </div>
-          <Link href="/booking" className="btn-gold px-8 py-3"><CalendarCheck className="h-4 w-4" /> رزرو آنلاین</Link>
+          <Link href="/booking" className="btn btn-secondary px-8 h-12"><CalendarCheck className="h-4 w-4" /> رزرو آنلاین</Link>
         </div>
       </section>
     </>

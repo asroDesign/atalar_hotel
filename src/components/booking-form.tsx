@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useMemo, useState } from "react";
-import { BedDouble, Waves, Loader2, ShieldCheck, Info, Users, AlertCircle, ScrollText } from "lucide-react";
+import { BedDouble, Waves, ShieldCheck, Info, Users, AlertCircle, ScrollText } from "lucide-react";
 import { createReservation } from "@/app/actions/public";
 import { JalaliDatePicker } from "./jalali-date-picker";
 import { addDaysISO, cn, diffDays, faNum, formatPrice, todayISO } from "@/lib/utils";
@@ -120,7 +120,7 @@ export function BookingForm({
       <input type="hidden" name="timeSlot" value={slot} />
       <input type="hidden" name="guests" value={guests} />
 
-      <div className="grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1.5">
+      <div role="tablist" className="tabs tabs-box grid grid-cols-2 bg-base-200 p-1.5">
         {[
           { k: "room" as const, label: "اقامت در اتاق", Icon: BedDouble, disabled: rooms.length === 0 },
           { k: "service" as const, label: "استخر و خدمات", Icon: Waves, disabled: services.length === 0 },
@@ -137,8 +137,8 @@ export function BookingForm({
               setSlot("");
             }}
             className={cn(
-              "flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold transition disabled:opacity-40",
-              kind === k ? "bg-white text-brand-700 shadow" : "text-slate-500 hover:text-slate-700",
+              "tab h-11 gap-2 text-sm font-semibold disabled:opacity-40",
+              kind === k && "tab-active !text-primary",
             )}
           >
             <Icon className="h-4 w-4" /> {label}
@@ -150,9 +150,9 @@ export function BookingForm({
         {kind === "room" ? (
           <>
             <div className={cn(!compact && "md:col-span-2")}>
-              <label className="label">انتخاب اتاق</label>
+              <label className="field-label">انتخاب اتاق</label>
               <select
-                className="input"
+                className="select w-full"
                 value={roomId}
                 onChange={(e) => {
                   setRoomId(Number(e.target.value));
@@ -191,9 +191,9 @@ export function BookingForm({
         ) : (
           <>
             <div>
-              <label className="label">انتخاب خدمت</label>
+              <label className="field-label">انتخاب خدمت</label>
               <select
-                className="input"
+                className="select w-full"
                 value={serviceId}
                 onChange={(e) => {
                   setServiceId(Number(e.target.value));
@@ -219,8 +219,8 @@ export function BookingForm({
             />
             {service && service.timeSlots.length > 0 && (
               <div className={cn(!compact && "md:col-span-2")}>
-                <label className="label flex items-center gap-2">
-                  انتخاب سانس {loadingAvail && <Loader2 className="h-3.5 w-3.5 animate-spin text-brand-600" />}
+                <label className="field-label flex items-center gap-2">
+                  انتخاب سانس {loadingAvail && <span className="loading loading-spinner loading-xs text-primary" />}
                 </label>
                 {!checkIn ? (
                   <div className="rounded-xl border border-dashed border-slate-300 p-4 text-center text-sm text-slate-500">
@@ -237,12 +237,8 @@ export function BookingForm({
                           disabled={isTaken}
                           onClick={() => setSlot(t)}
                           className={cn(
-                            "rounded-xl border px-2 py-2.5 text-sm font-medium transition",
-                            slot === t
-                              ? "border-brand-600 bg-brand-700 text-white shadow-lg shadow-brand-700/20"
-                              : isTaken
-                                ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 line-through"
-                                : "border-slate-200 bg-white hover:border-brand-400",
+                            "btn h-auto flex-col gap-0.5 py-2.5",
+                            slot === t ? "btn-primary shadow-lg shadow-primary/20" : isTaken ? "btn-disabled line-through" : "btn-outline border-base-300 hover:border-primary hover:bg-primary/5 hover:text-primary",
                           )}
                         >
                           <span dir="ltr">{faNum(t)}</span>
@@ -260,13 +256,13 @@ export function BookingForm({
         )}
 
         <div>
-          <label className="label">تعداد نفرات</label>
-          <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setGuests((g) => Math.max(1, g - 1))} className="btn-ghost h-11 w-11 p-0 text-lg">−</button>
-            <div className="input flex items-center justify-center gap-2 font-bold">
-              <Users className="h-4 w-4 text-brand-600" /> {faNum(guests)} نفر
+          <label className="field-label">تعداد نفرات</label>
+          <div className="join w-full">
+            <button type="button" onClick={() => setGuests((g) => Math.max(1, g - 1))} className="btn join-item btn-square text-lg">−</button>
+            <div className="input join-item flex flex-1 items-center justify-center gap-2 font-bold">
+              <Users className="h-4 w-4 text-primary" /> {faNum(guests)} نفر
             </div>
-            <button type="button" onClick={() => setGuests((g) => Math.min(maxGuests, g + 1))} className="btn-ghost h-11 w-11 p-0 text-lg">+</button>
+            <button type="button" onClick={() => setGuests((g) => Math.min(maxGuests, g + 1))} className="btn join-item btn-square text-lg">+</button>
           </div>
           <p className="mt-1 text-xs text-slate-500">
             حداکثر {faNum(maxGuests)} نفر
@@ -276,24 +272,24 @@ export function BookingForm({
           </p>
         </div>
         <div>
-          <label className="label">نام و نام خانوادگی *</label>
-          <input name="guestName" className="input" placeholder="مثلاً علی رضایی" required />
+          <label className="field-label">نام و نام خانوادگی *</label>
+          <input name="guestName" className="input w-full" placeholder="مثلاً علی رضایی" required />
         </div>
         <div>
-          <label className="label">شماره موبایل *</label>
-          <input name="phone" className="input text-left" dir="ltr" placeholder="09121234567" inputMode="tel" required />
+          <label className="field-label">شماره موبایل *</label>
+          <input name="phone" className="input w-full text-left" dir="ltr" placeholder="09121234567" inputMode="tel" required />
         </div>
         <div>
-          <label className="label">کد ملی</label>
-          <input name="nationalId" className="input text-left" dir="ltr" placeholder="اختیاری" inputMode="numeric" />
+          <label className="field-label">کد ملی</label>
+          <input name="nationalId" className="input w-full text-left" dir="ltr" placeholder="اختیاری" inputMode="numeric" />
         </div>
         <div className={cn(!compact && "md:col-span-2")}>
-          <label className="label">ایمیل</label>
-          <input name="email" type="email" className="input text-left" dir="ltr" placeholder="اختیاری" />
+          <label className="field-label">ایمیل</label>
+          <input name="email" type="email" className="input w-full text-left" dir="ltr" placeholder="اختیاری" />
         </div>
         <div className={cn(!compact && "md:col-span-2")}>
-          <label className="label">توضیحات</label>
-          <textarea name="notes" rows={2} className="input" placeholder="درخواست ویژه، ساعت تقریبی ورود، تخت اضافه و ..." />
+          <label className="field-label">توضیحات</label>
+          <textarea name="notes" rows={2} className="textarea w-full" placeholder="درخواست ویژه، ساعت تقریبی ورود، تخت اضافه و ..." />
         </div>
       </div>
 
@@ -325,7 +321,7 @@ export function BookingForm({
       </div>
 
       {rules.length > 0 && (
-        <div className="overflow-hidden rounded-2xl border border-amber-200 bg-amber-50/50">
+        <div className="overflow-hidden rounded-box border border-warning/30 bg-warning/5">
           <div className="flex items-center gap-2 border-b border-amber-200/70 px-4 py-2.5 text-sm font-bold text-amber-900">
             <ScrollText className="h-4 w-4" /> {kind === "room" ? "قوانین اقامت در هتل" : `قوانین ${service?.name ?? ""}`}
           </div>
@@ -338,8 +334,8 @@ export function BookingForm({
             ))}
           </ul>
           {requireRulesAccept && (
-            <label className="flex cursor-pointer items-center gap-2 border-t border-amber-200/70 bg-white/60 px-4 py-3 text-sm font-medium text-slate-700">
-              <input type="checkbox" name="acceptRules" checked={accepted} onChange={(e) => setAccepted(e.target.checked)} className="h-4 w-4 accent-brand-700" />
+            <label className="flex cursor-pointer items-center gap-2 border-t border-warning/20 bg-base-100/70 px-4 py-3 text-sm font-medium">
+              <input type="checkbox" name="acceptRules" checked={accepted} onChange={(e) => setAccepted(e.target.checked)} className="checkbox checkbox-primary checkbox-sm" />
               قوانین فوق را مطالعه کرده‌ام و می‌پذیرم.
             </label>
           )}
@@ -348,13 +344,13 @@ export function BookingForm({
       {(!requireRulesAccept || rules.length === 0) && <input type="hidden" name="acceptRules" value="on" />}
 
       {state?.error && (
-        <div className="flex items-center gap-2 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700 ring-1 ring-rose-200">
-          <AlertCircle className="h-4 w-4 shrink-0" /> {state.error}
+        <div role="alert" className="alert alert-error alert-soft text-sm">
+          <AlertCircle className="h-4 w-4 shrink-0" /> <span>{state.error}</span>
         </div>
       )}
 
-      <button type="submit" disabled={pending || !ready} className="btn-gold w-full py-3.5 text-base">
-        {pending ? <Loader2 className="h-5 w-5 animate-spin" /> : <ShieldCheck className="h-5 w-5" />}
+      <button type="submit" disabled={pending || !ready} className="btn btn-secondary w-full h-12 text-base">
+        {pending ? <span className="loading loading-spinner" /> : <ShieldCheck className="h-5 w-5" />}
         {pending ? "در حال ثبت درخواست..." : "ثبت درخواست رزرو و ادامه به پرداخت"}
       </button>
     </form>

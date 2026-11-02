@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ArrowDown, ArrowUp, Film, Loader2, Plus, Trash2, Upload, Link2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Film, Plus, Trash2, Upload, Link2 } from "lucide-react";
 import { DynIcon, iconNames } from "@/components/dyn-icon";
 import { cn, faNum } from "@/lib/utils";
 
@@ -108,11 +108,11 @@ export function MediaListEditor({ value, onChange }: { value: MediaItemValue[]; 
       <div className="flex flex-col gap-2 sm:flex-row">
         <div className="relative flex-1">
           <Link2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="لینک ویدیو mp4 یا تصویر/GIF" dir="ltr" className="input pr-9 text-left" />
+          <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="لینک ویدیو mp4 یا تصویر/GIF" dir="ltr" className="input w-full pr-9 text-left" />
         </div>
         <button
           type="button"
-          className="btn-ghost"
+          className="btn"
           onClick={() => {
             const u = url.trim();
             if (!u) return;
@@ -123,8 +123,8 @@ export function MediaListEditor({ value, onChange }: { value: MediaItemValue[]; 
         >
           <Plus className="h-4 w-4" /> افزودن لینک
         </button>
-        <button type="button" disabled={busy} onClick={() => fileRef.current?.click()} className="btn-primary">
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+        <button type="button" disabled={busy} onClick={() => fileRef.current?.click()} className="btn btn-primary">
+          {busy ? <span className="loading loading-spinner loading-sm" /> : <Upload className="h-4 w-4" />}
           {busy ? `در حال آپلود ${progress}` : "آپلود ویدیو / GIF"}
         </button>
         <input ref={fileRef} type="file" accept="video/*,image/*" multiple hidden onChange={(e) => onFiles(e.target.files)} />
@@ -145,9 +145,9 @@ export function VideoUrlInput({ name, defaultValue }: { name: string; defaultVal
   return (
     <div className="space-y-2">
       <div className="flex flex-col gap-2 sm:flex-row">
-        <input name={name} value={value} onChange={(e) => setValue(e.target.value)} dir="ltr" className="input flex-1 text-left" placeholder="لینک mp4، آپارات یا یوتیوب" />
-        <button type="button" disabled={busy} onClick={() => ref.current?.click()} className="btn-ghost">
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />} آپلود ویدیو
+        <input name={name} value={value} onChange={(e) => setValue(e.target.value)} dir="ltr" className="input w-full flex-1 text-left" placeholder="لینک mp4، آپارات یا یوتیوب" />
+        <button type="button" disabled={busy} onClick={() => ref.current?.click()} className="btn">
+          {busy ? <span className="loading loading-spinner loading-sm" /> : <Upload className="h-4 w-4" />} آپلود ویدیو
         </button>
         {value && (
           <button type="button" onClick={() => setValue("")} className="btn px-3 text-rose-600 hover:bg-rose-50"><Trash2 className="h-4 w-4" /></button>
@@ -216,14 +216,14 @@ export function StringListEditor({ value, onChange, placeholder }: { value: stri
       {value.map((s, i) => (
         <div key={i} className="flex items-center gap-2">
           <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-slate-100 text-xs font-bold text-slate-500">{faNum(i + 1)}</span>
-          <input value={s} onChange={(e) => onChange(value.map((x, j) => (j === i ? e.target.value : x)))} className="input" placeholder={placeholder} />
+          <input value={s} onChange={(e) => onChange(value.map((x, j) => (j === i ? e.target.value : x)))} className="input w-full" placeholder={placeholder} />
           <div className="flex shrink-0 gap-1">
             <button type="button" onClick={() => onChange(move(value, i, i - 1))} disabled={i === 0} className="grid h-8 w-8 place-items-center rounded-lg bg-slate-100 text-slate-500 disabled:opacity-30"><ArrowUp className="h-3.5 w-3.5" /></button>
             <button type="button" onClick={() => onChange(value.filter((_, j) => j !== i))} className="grid h-8 w-8 place-items-center rounded-lg bg-rose-50 text-rose-600"><Trash2 className="h-3.5 w-3.5" /></button>
           </div>
         </div>
       ))}
-      <button type="button" onClick={() => onChange([...value, ""])} className="btn-ghost w-full border-dashed">
+      <button type="button" onClick={() => onChange([...value, ""])} className="btn w-full border-dashed">
         <Plus className="h-4 w-4" /> افزودن مورد
       </button>
     </div>

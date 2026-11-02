@@ -40,20 +40,20 @@ export function Gallery({ images, alt, hasVideo }: { images: string[]; alt: stri
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img key={list[active]} src={list[active]} alt={alt} className="h-full w-full animate-fade-up object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent" />
-        <button onClick={() => setLightbox(true)} className="glass absolute left-4 top-4 grid h-10 w-10 place-items-center rounded-xl text-white">
+        <button onClick={() => setLightbox(true)} className="frost absolute left-4 top-4 grid h-10 w-10 place-items-center rounded-xl text-white">
           <Expand className="h-4 w-4" />
         </button>
         {hasVideo && (
-          <a href="#video" className="glass absolute bottom-4 right-4 flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white">
+          <a href="#video" className="frost absolute bottom-4 right-4 flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white">
             <PlayCircle className="h-4 w-4" /> مشاهده ویدیو
           </a>
         )}
         {list.length > 1 && (
           <>
-            <button onClick={() => setActive((a) => (a - 1 + list.length) % list.length)} className="glass absolute right-4 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full text-white opacity-0 transition group-hover:opacity-100">
+            <button onClick={() => setActive((a) => (a - 1 + list.length) % list.length)} className="frost absolute right-4 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full text-white opacity-0 transition group-hover:opacity-100">
               <ChevronRight className="h-5 w-5" />
             </button>
-            <button onClick={() => setActive((a) => (a + 1) % list.length)} className="glass absolute left-4 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full text-white opacity-0 transition group-hover:opacity-100">
+            <button onClick={() => setActive((a) => (a + 1) % list.length)} className="frost absolute left-4 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full text-white opacity-0 transition group-hover:opacity-100">
               <ChevronLeft className="h-5 w-5" />
             </button>
           </>

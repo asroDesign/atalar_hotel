@@ -52,7 +52,7 @@ export default async function RoomDetail({ params }: { params: Promise<{ slug: s
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
             {specs.map(({ Icon, label, value }) => (
-              <div key={label} className="card flex items-center gap-3 p-4">
+              <div key={label} className="card card-border bg-base-100 shadow-sm flex items-center gap-3 p-4 flex-row">
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700"><Icon className="h-5 w-5" /></span>
                 <div className="min-w-0">
                   <div className="text-xs text-slate-500">{label}</div>
@@ -108,7 +108,7 @@ export default async function RoomDetail({ params }: { params: Promise<{ slug: s
         </div>
 
         <aside className="lg:sticky lg:top-28 lg:self-start">
-          <div className="card overflow-hidden">
+          <div className="card card-border bg-base-100 shadow-sm overflow-hidden block">
             <div className="bg-gradient-to-l from-brand-800 to-brand-950 p-5 text-white">
               <div className="text-sm text-white/70">قیمت هر شب</div>
               <div className="mt-1 text-3xl font-black">{formatPrice(room.pricePerNight)} <span className="text-base font-medium text-white/70">تومان</span></div>

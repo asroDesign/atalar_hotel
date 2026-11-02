@@ -49,7 +49,7 @@ function CrudForm({ save, onDone, children }: { save: SaveFn; onDone: (msg: stri
     <form action={action} className="space-y-4">
       {children}
       <FormAlert state={state?.ok ? null : state} />
-      <SubmitButton className="btn-primary w-full py-3">ذخیره</SubmitButton>
+      <SubmitButton className="btn btn-primary w-full h-12">ذخیره</SubmitButton>
     </form>
   );
 }
@@ -63,13 +63,13 @@ export function AmenitiesManager({ initial }: { initial: Amenity[] }) {
   const cats = Array.from(new Set(c.items.map((a) => a.category)));
   return (
     <div>
-      <PageHeader title="امکانات هتل" desc={`${faNum(c.items.length)} امکان`} action={<button onClick={() => c.open("new")} className="btn-primary"><Plus className="h-4 w-4" /> افزودن امکان</button>} />
+      <PageHeader title="امکانات هتل" desc={`${faNum(c.items.length)} امکان`} action={<button onClick={() => c.open("new")} className="btn btn-primary"><Plus className="h-4 w-4" /> افزودن امکان</button>} />
       {c.items.length === 0 ? (
-        <EmptyBox title="هنوز امکاناتی ثبت نشده" icon={<Sparkles className="h-6 w-6" />} action={<button onClick={() => c.open("new")} className="btn-primary">افزودن اولین امکان</button>} />
+        <EmptyBox title="هنوز امکاناتی ثبت نشده" icon={<Sparkles className="h-6 w-6" />} action={<button onClick={() => c.open("new")} className="btn btn-primary">افزودن اولین امکان</button>} />
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {c.items.map((a) => (
-            <div key={a.id} className="card group flex items-start gap-3 p-4">
+            <div key={a.id} className="card card-border bg-base-100 shadow-sm group flex items-start gap-3 p-4 flex-row">
               <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700"><DynIcon name={a.icon} className="h-5 w-5" /></span>
               <div className="min-w-0 flex-1">
                 <div className="font-bold text-slate-800">{a.title}</div>
@@ -88,14 +88,14 @@ export function AmenitiesManager({ initial }: { initial: Amenity[] }) {
         <CrudForm key={c.formKey} save={saveAmenity} onDone={(m) => { c.setEditing(null); c.setToast(m); }}>
           <input type="hidden" name="id" value={e?.id ?? ""} />
           <input type="hidden" name="icon" value={icon} />
-          <div><label className="label">عنوان *</label><input name="title" defaultValue={e?.title} required className="input" /></div>
-          <div><label className="label">توضیح</label><input name="description" defaultValue={e?.description} className="input" /></div>
+          <div><label className="field-label">عنوان *</label><input name="title" defaultValue={e?.title} required className="input w-full" /></div>
+          <div><label className="field-label">توضیح</label><input name="description" defaultValue={e?.description} className="input w-full" /></div>
           <div className="grid grid-cols-2 gap-3">
-            <div><label className="label">دسته‌بندی</label><input name="category" defaultValue={e?.category ?? "عمومی"} list="amenity-cats" className="input" /><datalist id="amenity-cats">{cats.map((x) => <option key={x} value={x} />)}</datalist></div>
-            <div><label className="label">ترتیب</label><input name="sortOrder" type="number" defaultValue={e?.sortOrder ?? c.items.length} className="input" /></div>
+            <div><label className="field-label">دسته‌بندی</label><input name="category" defaultValue={e?.category ?? "عمومی"} list="amenity-cats" className="input w-full" /><datalist id="amenity-cats">{cats.map((x) => <option key={x} value={x} />)}</datalist></div>
+            <div><label className="field-label">ترتیب</label><input name="sortOrder" type="number" defaultValue={e?.sortOrder ?? c.items.length} className="input w-full" /></div>
           </div>
           <div>
-            <label className="label">آیکون</label>
+            <label className="field-label">آیکون</label>
             <div className="grid grid-cols-8 gap-1.5">
               {iconNames.map((n) => (
                 <button type="button" key={n} onClick={() => setIcon(n)} className={cn("grid aspect-square place-items-center rounded-lg", icon === n ? "bg-brand-700 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200")}><DynIcon name={n} className="h-4 w-4" /></button>
@@ -115,7 +115,7 @@ export function AttractionsManager({ initial, hotel }: { initial: Attraction[]; 
   const e = c.editing === "new" ? null : c.editing;
   return (
     <div>
-      <PageHeader title="جاذبه‌های گردشگری" desc="مکان‌های دیدنی اطراف هتل همراه با موقعیت روی نقشه" action={<button onClick={() => c.open("new")} className="btn-primary"><Plus className="h-4 w-4" /> افزودن مکان</button>} />
+      <PageHeader title="جاذبه‌های گردشگری" desc="مکان‌های دیدنی اطراف هتل همراه با موقعیت روی نقشه" action={<button onClick={() => c.open("new")} className="btn btn-primary"><Plus className="h-4 w-4" /> افزودن مکان</button>} />
       <MapView
         center={hotel}
         fitBounds
@@ -123,11 +123,11 @@ export function AttractionsManager({ initial, hotel }: { initial: Attraction[]; 
         markers={[{ ...hotel, title: hotel.name, kind: "hotel" }, ...c.items.filter((a) => a.lat && a.lng).map((a) => ({ lat: a.lat, lng: a.lng, title: a.name, subtitle: a.category }))]}
       />
       {c.items.length === 0 ? (
-        <EmptyBox title="هنوز جاذبه‌ای ثبت نشده" icon={<MapPinned className="h-6 w-6" />} action={<button onClick={() => c.open("new")} className="btn-primary">افزودن مکان</button>} />
+        <EmptyBox title="هنوز جاذبه‌ای ثبت نشده" icon={<MapPinned className="h-6 w-6" />} action={<button onClick={() => c.open("new")} className="btn btn-primary">افزودن مکان</button>} />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {c.items.map((a) => (
-            <div key={a.id} className="card overflow-hidden">
+            <div key={a.id} className="card card-border bg-base-100 shadow-sm overflow-hidden block">
               <div className="relative aspect-[16/9] bg-slate-100">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 {a.image && <img src={a.image} alt="" className="h-full w-full object-cover" />}
@@ -152,16 +152,16 @@ export function AttractionsManager({ initial, hotel }: { initial: Attraction[]; 
         <CrudForm key={c.formKey} save={saveAttraction} onDone={(m) => { c.setEditing(null); c.setToast(m); }}>
           <input type="hidden" name="id" value={e?.id ?? ""} />
           <div className="grid grid-cols-2 gap-3">
-            <div className="col-span-2"><label className="label">نام مکان *</label><input name="name" defaultValue={e?.name} required className="input" /></div>
-            <div><label className="label">دسته‌بندی</label><select name="category" defaultValue={e?.category ?? "طبیعی"} className="input">{["طبیعی", "تاریخی", "تفریحی", "روستایی", "مذهبی", "خرید"].map((x) => <option key={x}>{x}</option>)}</select></div>
-            <div><label className="label">ترتیب</label><input name="sortOrder" type="number" defaultValue={e?.sortOrder ?? c.items.length} className="input" /></div>
-            <div><label className="label">فاصله (کیلومتر)</label><input name="distanceKm" defaultValue={e?.distanceKm ?? ""} className="input" /></div>
-            <div><label className="label">زمان رسیدن</label><input name="travelTime" defaultValue={e?.travelTime} className="input" placeholder="۲۰ دقیقه با خودرو" /></div>
-            <div><label className="label">عرض جغرافیایی (lat)</label><input name="lat" defaultValue={e?.lat ?? ""} dir="ltr" className="input text-left" placeholder="38.15" /></div>
-            <div><label className="label">طول جغرافیایی (lng)</label><input name="lng" defaultValue={e?.lng ?? ""} dir="ltr" className="input text-left" placeholder="48.07" /></div>
+            <div className="col-span-2"><label className="field-label">نام مکان *</label><input name="name" defaultValue={e?.name} required className="input w-full" /></div>
+            <div><label className="field-label">دسته‌بندی</label><select name="category" defaultValue={e?.category ?? "طبیعی"} className="select w-full">{["طبیعی", "تاریخی", "تفریحی", "روستایی", "مذهبی", "خرید"].map((x) => <option key={x}>{x}</option>)}</select></div>
+            <div><label className="field-label">ترتیب</label><input name="sortOrder" type="number" defaultValue={e?.sortOrder ?? c.items.length} className="input w-full" /></div>
+            <div><label className="field-label">فاصله (کیلومتر)</label><input name="distanceKm" defaultValue={e?.distanceKm ?? ""} className="input w-full" /></div>
+            <div><label className="field-label">زمان رسیدن</label><input name="travelTime" defaultValue={e?.travelTime} className="input w-full" placeholder="۲۰ دقیقه با خودرو" /></div>
+            <div><label className="field-label">عرض جغرافیایی (lat)</label><input name="lat" defaultValue={e?.lat ?? ""} dir="ltr" className="input w-full text-left" placeholder="38.15" /></div>
+            <div><label className="field-label">طول جغرافیایی (lng)</label><input name="lng" defaultValue={e?.lng ?? ""} dir="ltr" className="input w-full text-left" placeholder="48.07" /></div>
           </div>
-          <div><label className="label">توضیحات</label><textarea name="description" rows={3} defaultValue={e?.description} className="input" /></div>
-          <div><label className="label">تصویر</label><ImageListInput name="image" single initial={e?.image ? [e.image] : []} /></div>
+          <div><label className="field-label">توضیحات</label><textarea name="description" rows={3} defaultValue={e?.description} className="textarea w-full" /></div>
+          <div><label className="field-label">تصویر</label><ImageListInput name="image" single initial={e?.image ? [e.image] : []} /></div>
         </CrudForm>
       </Modal>
       <Toast message={c.toast} onDone={() => c.setToast(null)} />
@@ -175,13 +175,13 @@ export function TestimonialsManager({ initial }: { initial: Testimonial[] }) {
   const e = c.editing === "new" ? null : c.editing;
   return (
     <div>
-      <PageHeader title="نظرات مهمانان" desc="نظراتی که در صفحه اصلی نمایش داده می‌شوند" action={<button onClick={() => c.open("new")} className="btn-primary"><Plus className="h-4 w-4" /> افزودن نظر</button>} />
+      <PageHeader title="نظرات مهمانان" desc="نظراتی که در صفحه اصلی نمایش داده می‌شوند" action={<button onClick={() => c.open("new")} className="btn btn-primary"><Plus className="h-4 w-4" /> افزودن نظر</button>} />
       {c.items.length === 0 ? (
-        <EmptyBox title="هنوز نظری ثبت نشده" icon={<Star className="h-6 w-6" />} action={<button onClick={() => c.open("new")} className="btn-primary">افزودن نظر</button>} />
+        <EmptyBox title="هنوز نظری ثبت نشده" icon={<Star className="h-6 w-6" />} action={<button onClick={() => c.open("new")} className="btn btn-primary">افزودن نظر</button>} />
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {c.items.map((t) => (
-            <div key={t.id} className="card p-5">
+            <div key={t.id} className="card card-border bg-base-100 shadow-sm p-5 block">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <span className="grid h-10 w-10 place-items-center rounded-full bg-brand-100 font-bold text-brand-700">{t.name[0]}</span>
@@ -205,11 +205,11 @@ export function TestimonialsManager({ initial }: { initial: Testimonial[] }) {
         <CrudForm key={c.formKey} save={saveTestimonial} onDone={(m) => { c.setEditing(null); c.setToast(m); }}>
           <input type="hidden" name="id" value={e?.id ?? ""} />
           <div className="grid grid-cols-2 gap-3">
-            <div><label className="label">نام *</label><input name="name" defaultValue={e?.name} required className="input" /></div>
-            <div><label className="label">شهر</label><input name="city" defaultValue={e?.city} className="input" /></div>
-            <div className="col-span-2"><label className="label">امتیاز</label><select name="rating" defaultValue={e?.rating ?? 5} className="input">{[5, 4, 3, 2, 1].map((n) => <option key={n} value={n}>{faNum(n)} ستاره</option>)}</select></div>
+            <div><label className="field-label">نام *</label><input name="name" defaultValue={e?.name} required className="input w-full" /></div>
+            <div><label className="field-label">شهر</label><input name="city" defaultValue={e?.city} className="input w-full" /></div>
+            <div className="col-span-2"><label className="field-label">امتیاز</label><select name="rating" defaultValue={e?.rating ?? 5} className="select w-full">{[5, 4, 3, 2, 1].map((n) => <option key={n} value={n}>{faNum(n)} ستاره</option>)}</select></div>
           </div>
-          <div><label className="label">متن نظر *</label><textarea name="body" rows={4} defaultValue={e?.body} required className="input" /></div>
+          <div><label className="field-label">متن نظر *</label><textarea name="body" rows={4} defaultValue={e?.body} required className="textarea w-full" /></div>
         </CrudForm>
       </Modal>
       <Toast message={c.toast} onDone={() => c.setToast(null)} />

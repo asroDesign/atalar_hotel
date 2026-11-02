@@ -5,6 +5,7 @@ import { mediaFiles } from "@/db/schema";
 import { getCurrentAdmin } from "@/lib/auth";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const MAX_IMAGE = 10 * 1024 * 1024;
 const MAX_VIDEO = 80 * 1024 * 1024;

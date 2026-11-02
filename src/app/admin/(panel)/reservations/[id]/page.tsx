@@ -35,11 +35,11 @@ export default async function ReservationDetailPage({ params }: { params: Promis
       <PageHeader
         title={`رزرو ${r.guestName}`}
         desc={r.itemName}
-        action={<Link href={`/track/${r.trackingCode}?phone=${r.phone}`} target="_blank" className="btn-ghost"><ExternalLink className="h-4 w-4" /> صفحه مهمان</Link>}
+        action={<Link href={`/track/${r.trackingCode}?phone=${r.phone}`} target="_blank" className="btn"><ExternalLink className="h-4 w-4" /> صفحه مهمان</Link>}
       />
       <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
         <div className="space-y-6">
-          <div className="card overflow-hidden">
+          <div className="card card-border bg-base-100 shadow-sm overflow-hidden block">
             <div className="flex items-center gap-3 border-b border-slate-100 p-5">
               <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-50 text-brand-700">{r.kind === "room" ? <BedDouble className="h-5 w-5" /> : <Waves className="h-5 w-5" />}</span>
               <h3 className="font-extrabold text-slate-900">جزئیات درخواست</h3>

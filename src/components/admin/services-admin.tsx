@@ -16,10 +16,10 @@ export function ServicesList({ initial }: { initial: Service[] }) {
   const [, start] = useTransition();
   const [items, remove] = useOptimistic(initial, (s: Service[], id: number) => s.filter((x) => x.id !== id));
   if (items.length === 0)
-    return <EmptyBox title="هنوز خدمتی تعریف نشده" desc="خدماتی مانند استخر خانوادگی، رستوران یا ترانسفر را معرفی کنید." icon={<Waves className="h-6 w-6" />} action={<Link href="/admin/services/new" className="btn-primary"><Plus className="h-4 w-4" /> افزودن خدمت</Link>} />;
+    return <EmptyBox title="هنوز خدمتی تعریف نشده" desc="خدماتی مانند استخر خانوادگی، رستوران یا ترانسفر را معرفی کنید." icon={<Waves className="h-6 w-6" />} action={<Link href="/admin/services/new" className="btn btn-primary"><Plus className="h-4 w-4" /> افزودن خدمت</Link>} />;
   return (
     <>
-      <div className="card divide-y divide-slate-100">
+      <div className="card card-border bg-base-100 shadow-sm divide-y divide-slate-100 block">
         {items.map((s) => (
           <div key={s.id} className={cn("flex flex-wrap items-center gap-4 p-4", !s.isActive && "opacity-60")}>
             <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-xl bg-slate-100">
@@ -58,15 +58,15 @@ export function ServiceForm({ service }: { service?: Service }) {
       <input type="hidden" name="id" value={service?.id ?? ""} />
       <input type="hidden" name="icon" value={icon} />
       <div className="space-y-6">
-        <section className="card space-y-4 p-5">
+        <section className="card card-border bg-base-100 shadow-sm space-y-4 p-5 block">
           <h3 className="font-extrabold text-slate-900">اطلاعات خدمت</h3>
-          <div><label className="label">نام *</label><input name="name" defaultValue={service?.name} required className="input" placeholder="استخر خانوادگی" /></div>
-          <div><label className="label">توضیح کوتاه</label><input name="shortDescription" defaultValue={service?.shortDescription} className="input" /></div>
-          <div><label className="label">توضیحات کامل</label><textarea name="description" rows={6} defaultValue={service?.description} className="input" /></div>
-          <div><label className="label">ساعات کاری</label><input name="workingHours" defaultValue={service?.workingHours} className="input" /></div>
-          <div><label className="label">قوانین (هر مورد در یک خط)</label><textarea name="rules" rows={4} defaultValue={service?.rules.join("\n")} className="input" /></div>
+          <div><label className="field-label">نام *</label><input name="name" defaultValue={service?.name} required className="input w-full" placeholder="استخر خانوادگی" /></div>
+          <div><label className="field-label">توضیح کوتاه</label><input name="shortDescription" defaultValue={service?.shortDescription} className="input w-full" /></div>
+          <div><label className="field-label">توضیحات کامل</label><textarea name="description" rows={6} defaultValue={service?.description} className="textarea w-full" /></div>
+          <div><label className="field-label">ساعات کاری</label><input name="workingHours" defaultValue={service?.workingHours} className="input w-full" /></div>
+          <div><label className="field-label">قوانین (هر مورد در یک خط)</label><textarea name="rules" rows={4} defaultValue={service?.rules.join("\n")} className="textarea w-full" /></div>
         </section>
-        <section className="card space-y-4 p-5">
+        <section className="card card-border bg-base-100 shadow-sm space-y-4 p-5 block">
           <h3 className="font-extrabold text-slate-900">آیکون</h3>
           <div className="grid grid-cols-8 gap-2 sm:grid-cols-10">
             {iconNames.map((n) => (
@@ -76,31 +76,31 @@ export function ServiceForm({ service }: { service?: Service }) {
             ))}
           </div>
         </section>
-        <section className="card space-y-4 p-5">
+        <section className="card card-border bg-base-100 shadow-sm space-y-4 p-5 block">
           <h3 className="font-extrabold text-slate-900">گالری تصاویر</h3>
           <ImageListInput name="gallery" initial={service?.gallery.length ? service.gallery : service?.image ? [service.image] : []} />
-          <div><label className="label">ویدیو معرفی (لینک یا آپلود)</label><VideoUrlInput name="videoUrl" defaultValue={service?.videoUrl} /></div>
+          <div><label className="field-label">ویدیو معرفی (لینک یا آپلود)</label><VideoUrlInput name="videoUrl" defaultValue={service?.videoUrl} /></div>
         </section>
       </div>
       <aside className="space-y-4 lg:sticky lg:top-8 lg:self-start">
-        <section className="card space-y-4 p-5">
-          <label className="flex items-center justify-between rounded-xl bg-gold-400/10 px-4 py-3 text-sm font-semibold"><span>قابل رزرو آنلاین</span><input type="checkbox" name="isBookable" checked={bookable} onChange={(e) => setBookable(e.target.checked)} className="h-5 w-5 accent-brand-700" /></label>
+        <section className="card card-border bg-base-100 shadow-sm space-y-4 p-5 block">
+          <label className="flex items-center justify-between rounded-xl bg-gold-400/10 px-4 py-3 text-sm font-semibold"><span>قابل رزرو آنلاین</span><input type="checkbox" name="isBookable" checked={bookable} onChange={(e) => setBookable(e.target.checked)} className="checkbox checkbox-primary" /></label>
           <div className="grid grid-cols-2 gap-3">
-            <div><label className="label">قیمت پایه (تومان)</label><input name="price" type="number" min={0} step={10000} defaultValue={service?.price ?? 0} className="input" /></div>
-            <div><label className="label">واحد قیمت</label><input name="priceUnit" defaultValue={service?.priceUnit ?? "هر سانس"} className="input" /></div>
+            <div><label className="field-label">قیمت پایه (تومان)</label><input name="price" type="number" min={0} step={10000} defaultValue={service?.price ?? 0} className="input w-full" /></div>
+            <div><label className="field-label">واحد قیمت</label><input name="priceUnit" defaultValue={service?.priceUnit ?? "هر سانس"} className="input w-full" /></div>
           </div>
           {bookable && (
             <>
               <div>
-                <label className="label">سانس‌ها و قیمت هر سانس</label>
+                <label className="field-label">سانس‌ها و قیمت هر سانس</label>
                 <SlotsEditor initialSlots={service?.timeSlots ?? []} initialPrices={service?.slotPrices ?? {}} basePrice={service?.price ?? 0} />
               </div>
               <div className="rounded-2xl bg-slate-50 p-4">
                 <div className="mb-3 text-sm font-bold text-slate-700">ظرفیت و هزینه نفر اضافه</div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div><label className="label text-xs">نفرات شامل قیمت سانس</label><input name="includedGuests" type="number" min={1} defaultValue={service?.includedGuests ?? 4} className="input" /></div>
-                  <div><label className="label text-xs">حداکثر نفرات</label><input name="maxGuests" type="number" min={1} defaultValue={service?.maxGuests ?? 6} className="input" /></div>
-                  <div className="col-span-2"><label className="label text-xs">مبلغ هر نفر اضافه (تومان)</label><input name="extraGuestPrice" type="number" min={0} step={10000} defaultValue={service?.extraGuestPrice ?? 0} className="input" /></div>
+                  <div><label className="field-label text-xs">نفرات شامل قیمت سانس</label><input name="includedGuests" type="number" min={1} defaultValue={service?.includedGuests ?? 4} className="input w-full" /></div>
+                  <div><label className="field-label text-xs">حداکثر نفرات</label><input name="maxGuests" type="number" min={1} defaultValue={service?.maxGuests ?? 6} className="input w-full" /></div>
+                  <div className="col-span-2"><label className="field-label text-xs">مبلغ هر نفر اضافه (تومان)</label><input name="extraGuestPrice" type="number" min={0} step={10000} defaultValue={service?.extraGuestPrice ?? 0} className="input w-full" /></div>
                 </div>
                 <p className="mt-2 text-xs text-slate-400">مثال: قیمت سانس برای ۴ نفر؛ نفر پنجم به بعد هر نفر مبلغ اضافه پرداخت می‌کند.</p>
               </div>
@@ -114,12 +114,12 @@ export function ServiceForm({ service }: { service?: Service }) {
               <input type="hidden" name="slots" value={JSON.stringify((service?.timeSlots ?? []).map((t) => ({ time: t, price: service?.slotPrices?.[t] ?? service?.price ?? 0 })))} />
             </>
           )}
-          <div><label className="label">نامک (slug)</label><input name="slug" defaultValue={service?.slug} dir="ltr" className="input text-left" /></div>
-          <div><label className="label">ترتیب نمایش</label><input name="sortOrder" type="number" defaultValue={service?.sortOrder ?? 0} className="input" /></div>
-          <label className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3 text-sm"><span>نمایش در سایت</span><input type="checkbox" name="isActive" defaultChecked={service?.isActive ?? true} className="h-5 w-5 accent-brand-700" /></label>
+          <div><label className="field-label">نامک (slug)</label><input name="slug" defaultValue={service?.slug} dir="ltr" className="input w-full text-left" /></div>
+          <div><label className="field-label">ترتیب نمایش</label><input name="sortOrder" type="number" defaultValue={service?.sortOrder ?? 0} className="input w-full" /></div>
+          <label className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3 text-sm"><span>نمایش در سایت</span><input type="checkbox" name="isActive" defaultChecked={service?.isActive ?? true} className="checkbox checkbox-primary" /></label>
           <FormAlert state={state} />
-          <SubmitButton className="btn-primary w-full py-3">{service ? "ذخیره تغییرات" : "ایجاد خدمت"}</SubmitButton>
-          <Link href="/admin/services" className="btn-ghost w-full">انصراف</Link>
+          <SubmitButton className="btn btn-primary w-full h-12">{service ? "ذخیره تغییرات" : "ایجاد خدمت"}</SubmitButton>
+          <Link href="/admin/services" className="btn w-full">انصراف</Link>
         </section>
       </aside>
     </form>

@@ -57,10 +57,10 @@ export function SlotsEditor({
           <div key={i} className="grid grid-cols-[1fr_1fr_auto] items-center gap-2 border-t border-slate-100 px-3 py-2">
             <div className="relative">
               <Clock className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
-              <input value={r.time} onChange={(e) => update(i, { time: e.target.value })} dir="ltr" placeholder="09:00-10:30" className="input py-2 pl-8 text-left font-mono" />
+              <input value={r.time} onChange={(e) => update(i, { time: e.target.value })} dir="ltr" placeholder="09:00-10:30" className="input w-full py-2 pl-8 text-left font-mono" />
             </div>
             <div>
-              <input type="number" min={0} step={10000} value={r.price} onChange={(e) => update(i, { price: Number(e.target.value) || 0 })} className="input py-2" />
+              <input type="number" min={0} step={10000} value={r.price} onChange={(e) => update(i, { price: Number(e.target.value) || 0 })} className="input w-full py-2" />
               <div className="mt-0.5 text-[10px] text-slate-400">{formatPrice(r.price)} تومان</div>
             </div>
             <div className="flex w-16 gap-1">
@@ -80,10 +80,10 @@ export function SlotsEditor({
         ))}
       </div>
       <div className="flex flex-wrap gap-2">
-        <button type="button" onClick={addNext} className="btn-ghost"><Plus className="h-4 w-4" /> افزودن سانس</button>
+        <button type="button" onClick={addNext} className="btn"><Plus className="h-4 w-4" /> افزودن سانس</button>
         <div className="flex flex-1 gap-2">
-          <input value={bulk} onChange={(e) => setBulk(e.target.value)} type="number" placeholder="قیمت یکسان برای همه" className="input min-w-0" />
-          <button type="button" onClick={() => bulk && setRows((rs) => rs.map((r) => ({ ...r, price: Number(bulk) || 0 })))} className="btn-ghost shrink-0"><Wand2 className="h-4 w-4" /> اعمال</button>
+          <input value={bulk} onChange={(e) => setBulk(e.target.value)} type="number" placeholder="قیمت یکسان برای همه" className="input w-full min-w-0" />
+          <button type="button" onClick={() => bulk && setRows((rs) => rs.map((r) => ({ ...r, price: Number(bulk) || 0 })))} className="btn shrink-0"><Wand2 className="h-4 w-4" /> اعمال</button>
         </div>
       </div>
       <p className="text-xs text-slate-400">{faNum(rows.length)} سانس · هر سانس در هر روز فقط برای یک رزرو قابل تایید است.</p>
