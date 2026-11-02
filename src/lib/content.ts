@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { settings } from "@/db/schema";
@@ -215,14 +216,14 @@ function merge<T extends object>(defaults: T, raw: string | undefined): T {
   }
 }
 
-export async function getContent() {
+export const getContent = cache(async () => {
   const rows = await db.select().from(settings).where(inArray(settings.key, ["content_home", "content_booking"]));
   const get = (k: string) => rows.find((r) => r.key === k)?.value;
   return {
     home: merge(defaultHome, get("content_home")),
     booking: merge(defaultBooking, get("content_booking")),
   };
-}
+});
 
 export function guessMediaType(url: string): "video" | "image" {
   return /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(url) ? "video" : "image";

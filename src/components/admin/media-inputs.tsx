@@ -10,13 +10,40 @@ export type MediaItemValue = { url: string; type: "video" | "image"; duration: n
 const guessType = (url: string): "video" | "image" =>
   /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(url) ? "video" : "image";
 
-export async function uploadFile(file: File): Promise<{ url: string; type: "video" | "image" }> {
-  const fd = new FormData();
-  fd.append("file", file);
-  const res = await fetch("/api/upload", { method: "POST", body: fd });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || "خطا در آپلود فایل");
-  return { url: data.url, type: data.type };
+/**
+ * Chunked upload: the file is sent in small pieces so neither the browser nor
+ * the server ever holds the whole file in memory at once.
+ */
+export async function uploadFile(
+  file: File,
+  onProgress?: (pct: number) => void,
+): Promise<{ url: string; type: "video" | "image" }> {
+  const init = await fetch("/api/upload", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: file.name, mime: file.type, size: file.size }),
+  });
+  const meta = await init.json().catch(() => ({}));
+  if (!init.ok) throw new Error(meta.error || "خطا در شروع آپلود");
+  const { id, chunkSize, url, type } = meta as { id: string; chunkSize: number; url: string; type: "video" | "image" };
+  const total = Math.ceil(file.size / chunkSize);
+  for (let i = 0; i < total; i++) {
+    const part = file.slice(i * chunkSize, Math.min(file.size, (i + 1) * chunkSize));
+    let attempt = 0;
+    for (;;) {
+      const res = await fetch(`/api/upload/${id}?i=${i}`, { method: "PUT", body: part, headers: { "Content-Type": "application/octet-stream" } });
+      if (res.ok) break;
+      const err = await res.json().catch(() => ({}));
+      if (res.status < 500 || ++attempt >= 3) {
+        fetch(`/api/upload/${id}`, { method: "DELETE" }).catch(() => {});
+        throw new Error(err.error || "خطا در آپلود");
+      }
+    }
+    onProgress?.(Math.round(((i + 1) / total) * 100));
+  }
+  const done = await fetch(`/api/upload/${id}`, { method: "POST" });
+  if (!done.ok) throw new Error((await done.json().catch(() => ({}))).error || "خطا در تکمیل آپلود");
+  return { url, type };
 }
 
 function move<T>(arr: T[], from: number, to: number): T[] {
@@ -42,8 +69,7 @@ export function MediaListEditor({ value, onChange }: { value: MediaItemValue[]; 
     try {
       const arr = Array.from(files);
       for (let i = 0; i < arr.length; i++) {
-        setProgress(`${faNum(i + 1)} از ${faNum(arr.length)}`);
-        const r = await uploadFile(arr[i]);
+        const r = await uploadFile(arr[i], (pct) => setProgress(`${faNum(i + 1)} از ${faNum(arr.length)} · ${faNum(pct)}٪`));
         added.push({ url: r.url, type: r.type, duration: r.type === "image" ? 6 : 0 });
       }
     } catch (e) {
@@ -129,7 +155,7 @@ export function MediaListEditor({ value, onChange }: { value: MediaItemValue[]; 
         </button>
         <input ref={fileRef} type="file" accept="video/*,image/*" multiple hidden onChange={(e) => onFiles(e.target.files)} />
       </div>
-      <p className="text-xs text-slate-400">ویدیوها بی‌صدا و تا پایان پخش می‌شوند، سپس رسانه بعدی نمایش داده می‌شود. حداکثر حجم ویدیو ۸۰ مگابایت.</p>
+      <p className="text-xs text-slate-400">ویدیوها بی‌صدا و تا پایان پخش می‌شوند، سپس رسانه بعدی نمایش داده می‌شود. حداکثر حجم ویدیو ۱۵۰ مگابایت (MP4 / WEBM) و تصویر ۱۰ مگابایت.</p>
       {err && <p className="text-xs text-rose-600">{err}</p>}
     </div>
   );
@@ -139,6 +165,7 @@ export function MediaListEditor({ value, onChange }: { value: MediaItemValue[]; 
 export function VideoUrlInput({ name, defaultValue }: { name: string; defaultValue?: string }) {
   const [value, setValue] = useState(defaultValue ?? "");
   const [busy, setBusy] = useState(false);
+  const [pct, setPct] = useState(0);
   const [err, setErr] = useState("");
   const ref = useRef<HTMLInputElement>(null);
   const isFile = value && !/youtube|youtu\.be|aparat|<iframe/i.test(value);
@@ -147,7 +174,7 @@ export function VideoUrlInput({ name, defaultValue }: { name: string; defaultVal
       <div className="flex flex-col gap-2 sm:flex-row">
         <input name={name} value={value} onChange={(e) => setValue(e.target.value)} dir="ltr" className="input w-full flex-1 text-left" placeholder="لینک mp4، آپارات یا یوتیوب" />
         <button type="button" disabled={busy} onClick={() => ref.current?.click()} className="btn">
-          {busy ? <span className="loading loading-spinner loading-sm" /> : <Upload className="h-4 w-4" />} آپلود ویدیو
+          {busy ? <><span className="loading loading-spinner loading-sm" /> {faNum(pct)}٪</> : <><Upload className="h-4 w-4" /> آپلود ویدیو</>}
         </button>
         {value && (
           <button type="button" onClick={() => setValue("")} className="btn px-3 text-rose-600 hover:bg-rose-50"><Trash2 className="h-4 w-4" /></button>
@@ -163,7 +190,8 @@ export function VideoUrlInput({ name, defaultValue }: { name: string; defaultVal
             setBusy(true);
             setErr("");
             try {
-              setValue((await uploadFile(f)).url);
+              setPct(0);
+              setValue((await uploadFile(f, setPct)).url);
             } catch (er) {
               setErr(er instanceof Error ? er.message : "خطا");
             } finally {

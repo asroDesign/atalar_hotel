@@ -26,8 +26,12 @@ import {
   AlertCircle,
   Home,
   FileText,
+  CalendarDays,
+  Calculator,
+  MessageSquareText,
 } from "lucide-react";
 import { logout } from "@/app/actions/admin";
+import { uploadFile } from "./media-inputs";
 import { cn, faNum, statusMeta } from "@/lib/utils";
 
 const nav = [
@@ -36,11 +40,14 @@ const nav = [
   { href: "/admin/home", label: "صفحه اصلی", Icon: Home },
   { href: "/admin/booking-page", label: "صفحه رزرو و قوانین", Icon: FileText },
   { href: "/admin/rooms", label: "اتاق‌ها", Icon: BedDouble },
+  { href: "/admin/pricing", label: "قیمت‌گذاری و تقویم", Icon: CalendarDays },
+  { href: "/admin/accounting", label: "حسابداری", Icon: Calculator },
   { href: "/admin/services", label: "خدمات و استخر", Icon: Waves },
   { href: "/admin/amenities", label: "امکانات", Icon: Sparkles },
   { href: "/admin/attractions", label: "جاذبه‌های گردشگری", Icon: MapPinned },
   { href: "/admin/testimonials", label: "نظرات مهمانان", Icon: Star },
   { href: "/admin/messages", label: "پیام‌ها", Icon: MessageSquare, badge: "messages" as const },
+  { href: "/admin/sms", label: "پنل پیامک", Icon: MessageSquareText },
   { href: "/admin/settings", label: "تنظیمات", Icon: Settings },
 ];
 
@@ -113,15 +120,15 @@ export function AdminShell({
 
   return (
     <div className="min-h-screen bg-base-200">
-      <aside className="fixed inset-y-0 right-0 z-40 hidden w-72 bg-gradient-to-b from-brand-900 to-brand-950 lg:block">{sidebar}</aside>
+      <aside className="fixed inset-y-0 right-0 z-40 hidden w-72 print:!hidden bg-gradient-to-b from-brand-900 to-brand-950 lg:block">{sidebar}</aside>
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)} />
           <aside className="absolute inset-y-0 right-0 w-72 animate-fade-up bg-gradient-to-b from-brand-900 to-brand-950">{sidebar}</aside>
         </div>
       )}
-      <div className="lg:pr-72">
-        <header className="navbar sticky top-0 z-30 gap-3 border-b border-base-300 bg-base-100/80 px-4 backdrop-blur lg:hidden">
+      <div className="lg:pr-72 print:!pr-0">
+        <header className="navbar sticky top-0 z-30 print:hidden gap-3 border-b border-base-300 bg-base-100/80 px-4 backdrop-blur lg:hidden">
           <button onClick={() => setOpen(true)} className="btn btn-square btn-ghost">
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -227,11 +234,8 @@ export function ImageListInput({ name, initial, single = false }: { name: string
     setErr("");
     try {
       for (const f of Array.from(files)) {
-        const fd = new FormData();
-        fd.append("file", f);
-        const res = await fetch("/api/upload", { method: "POST", body: fd });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "خطا در آپلود");
+        if (!f.type.startsWith("image/")) throw new Error("فقط فایل تصویری مجاز است");
+        const data = await uploadFile(f);
         add(data.url);
         if (single) break;
       }

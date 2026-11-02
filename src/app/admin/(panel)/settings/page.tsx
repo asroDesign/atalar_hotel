@@ -7,7 +7,7 @@ export default async function Page() {
   return (
     <div>
       <PageHeader title="تنظیمات" desc="اطلاعات هتل، پرداخت، موقعیت مکانی و حساب کاربری" />
-      <SettingsForm s={s} />
+      <SettingsForm s={{ ...s, smsApiKey: "" }} />
       <div className="mt-6"><PasswordForm /></div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { db } from "@/db";
 import { settings } from "@/db/schema";
 import { ensureSeeded } from "./seed";
@@ -23,6 +24,16 @@ export const defaultSettings = {
   instagram: "atalar.hotel",
   telegram: "atalarhotel",
   whatsapp: "989141234567",
+  smsProvider: "none",
+  smsApiKey: "",
+  smsAdminMobiles: "",
+  smsNotifyAdminOnRequest: "0",
+  smsNotifyAdminOnPaid: "1",
+  smsNotifyGuestOnRequest: "0",
+  smsTplAdminReservation: "",
+  smsTplGuestRequest: "",
+  smsTplGuestConfirmed: "",
+  smsTplGuestRejected: "",
   aboutTitle: "داستان آتالار",
   aboutText:
     "هتل آتالار در سال ۱۳۹۸ با هدف ارائه تجربه‌ای متفاوت از اقامت در قلب شهر توریستی سرعین افتتاح شد. «آتالار» در زبان ترکی به معنای «نیاکان» است؛ نامی که یادآور مهمان‌نوازی اصیل آذربایجانی است. ما با ۱۶ اتاق و سوئیت دنج و یک استخر خانوادگی اختصاصی، فضایی آرام، خصوصی و صمیمی برای خانواده‌ها فراهم کرده‌ایم تا خاطره‌ای گرم در دامنه کوه سبلان بسازند.",
@@ -30,7 +41,16 @@ export const defaultSettings = {
 
 export type SiteSettings = typeof defaultSettings;
 
-export async function getSettings(): Promise<SiteSettings> {
+/** Keys that must never be sent to the browser. */
+export const SECRET_SETTING_KEYS = ["smsApiKey"] as const;
+
+export async function getSettingsFresh(): Promise<SiteSettings> {
+  return loadSettings();
+}
+
+export const getSettings = cache(async (): Promise<SiteSettings> => loadSettings());
+
+async function loadSettings(): Promise<SiteSettings> {
   await ensureSeeded();
   const rows = await db.select().from(settings);
   const out: SiteSettings = { ...defaultSettings };

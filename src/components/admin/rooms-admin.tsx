@@ -7,6 +7,7 @@ import type { Room } from "@/db/schema";
 import { deleteRoom, toggleRoom, saveRoom } from "@/app/actions/admin";
 import { EmptyBox, FormAlert, ImageListInput, SubmitButton, Toast } from "./ui";
 import { VideoUrlInput } from "./media-inputs";
+import { CapacityFields, FeaturesEditor, RoomOptionsEditor } from "./room-extras";
 import { cn, faNum, formatPrice } from "@/lib/utils";
 
 type A = { type: "toggle"; id: number; field: "isActive" | "isFeatured"; value: boolean } | { type: "delete"; id: number };
@@ -44,7 +45,7 @@ export function RoomsGrid({ initial }: { initial: Room[] }) {
                 <div className="text-left text-sm font-black text-brand-700">{formatPrice(r.pricePerNight)}<div className="text-[10px] font-normal text-slate-400">تومان/شب</div></div>
               </div>
               <div className="mt-3 flex gap-3 text-xs text-slate-500">
-                <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{faNum(r.capacity)}+{faNum(r.extraBeds)}</span>
+                <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{faNum(r.capacity)} تا {faNum(r.capacity + r.extraBeds)} نفر</span>
                 <span className="flex items-center gap-1"><Maximize className="h-3.5 w-3.5" />{faNum(r.size)} م²</span>
               </div>
               <div className="mt-4 flex items-center gap-1.5 border-t border-slate-100 pt-3">
@@ -99,14 +100,18 @@ export function RoomForm({ room }: { room?: Room }) {
         <section className="card card-border bg-base-100 shadow-sm space-y-4 p-5 block">
           <h3 className="font-extrabold text-slate-900">مشخصات</h3>
           <div className="grid gap-4 sm:grid-cols-3">
-            <div><label className="field-label">ظرفیت (نفر)</label><input name="capacity" type="number" min={1} defaultValue={room?.capacity ?? 2} className="input w-full" /></div>
-            <div><label className="field-label">تخت اضافه</label><input name="extraBeds" type="number" min={0} defaultValue={room?.extraBeds ?? 0} className="input w-full" /></div>
             <div><label className="field-label">متراژ (م²)</label><input name="size" type="number" defaultValue={room?.size ?? 25} className="input w-full" /></div>
             <div><label className="field-label">طبقه</label><input name="floor" type="number" defaultValue={room?.floor ?? 1} className="input w-full" /></div>
             <div className="sm:col-span-2"><label className="field-label">نوع تخت</label><input name="beds" defaultValue={room?.beds} className="input w-full" /></div>
             <div className="sm:col-span-3"><label className="field-label">چشم‌انداز</label><input name="view" defaultValue={room?.view} className="input w-full" placeholder="نمای کوه سبلان" /></div>
           </div>
-          <div><label className="field-label">امکانات اتاق (هر مورد در یک خط)</label><textarea name="features" rows={6} defaultValue={room?.features.join("\n")} className="textarea w-full" /></div>
+          <CapacityFields capacity={room?.capacity ?? 2} maxCapacity={(room?.capacity ?? 2) + (room?.extraBeds ?? 1)} extraGuestPrice={room?.extraGuestPrice ?? 0} />
+          <div><label className="field-label">امکانات اتاق</label><FeaturesEditor initial={room?.features ?? []} /></div>
+        </section>
+        <section className="card card-border bg-base-100 shadow-sm space-y-4 p-5 block">
+          <h3 className="font-extrabold">خدمات و وعده‌های غذایی قابل انتخاب</h3>
+          <p className="-mt-2 text-xs text-base-content/60">مهمان هنگام رزرو می‌تواند این گزینه‌ها را انتخاب کند و مبلغ آن به صورتحساب افزوده می‌شود.</p>
+          <RoomOptionsEditor initial={room?.options ?? []} />
         </section>
         <section className="card card-border bg-base-100 shadow-sm space-y-4 p-5 block">
           <h3 className="font-extrabold text-slate-900">تصاویر</h3>
@@ -119,7 +124,12 @@ export function RoomForm({ room }: { room?: Room }) {
       </div>
       <aside className="space-y-4 lg:sticky lg:top-8 lg:self-start">
         <section className="card card-border bg-base-100 shadow-sm space-y-4 p-5 block">
-          <div><label className="field-label">قیمت هر شب (تومان)</label><input name="pricePerNight" type="number" min={0} step={10000} defaultValue={room?.pricePerNight ?? 2500000} className="input w-full text-lg font-bold" /></div>
+          <div><label className="field-label">قیمت پایه هر شب (تومان)</label><input name="pricePerNight" type="number" min={0} step={10000} defaultValue={room?.pricePerNight ?? 2500000} className="input w-full text-lg font-bold" /></div>
+          <div className="grid grid-cols-2 gap-2">
+            <div><label className="field-label text-xs">قیمت روز تعطیل</label><input name="holidayPrice" type="number" min={0} step={10000} defaultValue={room?.holidayPrice ?? 0} className="input input-sm w-full" /></div>
+            <div><label className="field-label text-xs">قیمت روز پیک</label><input name="peakPrice" type="number" min={0} step={10000} defaultValue={room?.peakPrice ?? 0} className="input input-sm w-full" /></div>
+          </div>
+          <p className="-mt-2 text-[11px] text-base-content/50">صفر = همان قیمت پایه. قیمت روزانه را از <Link href="/admin/pricing" className="link link-primary">تقویم قیمت‌گذاری</Link> تغییر دهید.</p>
           <div><label className="field-label">نامک (slug)</label><input name="slug" defaultValue={room?.slug} dir="ltr" className="input w-full text-left" placeholder="room-101" /></div>
           <div><label className="field-label">ترتیب نمایش</label><input name="sortOrder" type="number" defaultValue={room?.sortOrder ?? 0} className="input w-full" /></div>
           <label className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3 text-sm"><span>نمایش در سایت</span><input type="checkbox" name="isActive" defaultChecked={room?.isActive ?? true} className="checkbox checkbox-primary" /></label>

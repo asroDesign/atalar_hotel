@@ -19,20 +19,27 @@ import {
 import {
   createSession,
   destroySession,
+  dummyVerify,
   hashPassword,
   requireAdmin,
+  revokeOtherSessions,
   verifyPassword,
 } from "@/lib/auth";
+import { rateLimit, resetRateLimit, retryMessage } from "@/lib/rate-limit";
+import { cleanText, clientIp, safeUrl, safeUrlList } from "@/lib/security";
+import { syncReservationVouchers } from "@/lib/accounting";
+import { notifyGuest, sendPattern } from "@/lib/sms";
+import { journalEntries, type RoomOption } from "@/db/schema";
+import { and as andOp } from "drizzle-orm";
 import { ensureSeeded } from "@/lib/seed";
 import { defaultSettings } from "@/lib/data";
 import { bookedSlots, roomConflicts } from "@/lib/availability";
 import { formatJalali, genReservationCode, linesToArray, slugify, toEnDigits } from "@/lib/utils";
 import { defaultBooking, defaultHome } from "@/lib/content";
-import { sendSms } from "@/lib/sms";
 
 export type ActionState = { ok?: boolean; error?: string; message?: string } | null;
 
-const str = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
+const str = (fd: FormData, k: string) => cleanText(fd.get(k), 20000);
 const num = (fd: FormData, k: string) => Number(toEnDigits(str(fd, k)).replace(/[,٬]/g, "")) || 0;
 const bool = (fd: FormData, k: string) => fd.get(k) === "on" || fd.get(k) === "true";
 
@@ -43,12 +50,18 @@ function revalidateSite() {
 /* ---------------- auth ---------------- */
 export async function login(_p: ActionState, fd: FormData): Promise<ActionState> {
   await ensureSeeded();
-  const email = str(fd, "email").toLowerCase();
-  const password = str(fd, "password");
+  const email = str(fd, "email").toLowerCase().slice(0, 190);
+  const password = String(fd.get("password") ?? "").slice(0, 200);
+  const ip = await clientIp();
+  const [byIp, byEmail] = await Promise.all([rateLimit(`login-ip:${ip}`, 20, 900), rateLimit(`login-email:${email}`, 6, 900)]);
+  if (!byIp.ok || !byEmail.ok) return { error: retryMessage(Math.max(byIp.retryAfter, byEmail.retryAfter)) };
   const [admin] = await db.select().from(admins).where(eq(admins.email, email));
-  if (!admin || !verifyPassword(password, admin.passwordHash)) {
+  if (!admin) {
+    dummyVerify();
     return { error: "ایمیل یا رمز عبور اشتباه است." };
   }
+  if (!verifyPassword(password, admin.passwordHash)) return { error: "ایمیل یا رمز عبور اشتباه است." };
+  await resetRateLimit(`login-email:${email}`);
   await createSession(admin.id);
   redirect("/admin");
 }
@@ -64,12 +77,32 @@ export async function changePassword(_p: ActionState, fd: FormData): Promise<Act
   const next = str(fd, "next");
   const [admin] = await db.select().from(admins).where(eq(admins.id, me.id));
   if (!admin || !verifyPassword(current, admin.passwordHash)) return { error: "رمز فعلی اشتباه است." };
-  if (next.length < 6) return { error: "رمز جدید باید حداقل ۶ کاراکتر باشد." };
+  if (next.length < 8) return { error: "رمز جدید باید حداقل ۸ کاراکتر باشد." };
   await db.update(admins).set({ passwordHash: hashPassword(next) }).where(eq(admins.id, me.id));
-  return { ok: true, message: "رمز عبور با موفقیت تغییر کرد." };
+  await revokeOtherSessions(me.id);
+  return { ok: true, message: "رمز عبور تغییر کرد و سایر نشست‌های فعال خارج شدند." };
 }
 
 /* ---------------- rooms ---------------- */
+function parseRoomOptions(raw: string): RoomOption[] {
+  try {
+    const arr = JSON.parse(raw) as Partial<RoomOption>[];
+    const units: RoomOption["unit"][] = ["per_night", "per_person_night", "per_stay", "per_person"];
+    return arr
+      .map((o, i) => ({
+        id: String(o.id || `o${Date.now().toString(36)}${i}`).replace(/[^\w-]/g, "").slice(0, 30) || `o${i}`,
+        title: cleanText(o.title, 80),
+        price: Math.max(0, Math.round(Number(o.price) || 0)),
+        unit: units.includes(o.unit as RoomOption["unit"]) ? (o.unit as RoomOption["unit"]) : "per_night",
+        included: !!o.included,
+      }))
+      .filter((o) => o.title)
+      .slice(0, 20);
+  } catch {
+    return [];
+  }
+}
+
 export async function saveRoom(_p: ActionState, fd: FormData): Promise<ActionState> {
   await requireAdmin();
   const id = num(fd, "id");
@@ -82,7 +115,11 @@ export async function saveRoom(_p: ActionState, fd: FormData): Promise<ActionSta
     type: str(fd, "type"),
     floor: num(fd, "floor"),
     capacity: Math.max(1, num(fd, "capacity")),
-    extraBeds: num(fd, "extraBeds"),
+    extraBeds: Math.max(0, num(fd, "maxCapacity") - Math.max(1, num(fd, "capacity"))),
+    extraGuestPrice: Math.max(0, num(fd, "extraGuestPrice")),
+    holidayPrice: Math.max(0, num(fd, "holidayPrice")),
+    peakPrice: Math.max(0, num(fd, "peakPrice")),
+    options: parseRoomOptions(String(fd.get("options") ?? "[]")),
     beds: str(fd, "beds"),
     size: num(fd, "size"),
     view: str(fd, "view"),
@@ -90,8 +127,8 @@ export async function saveRoom(_p: ActionState, fd: FormData): Promise<ActionSta
     shortDescription: str(fd, "shortDescription"),
     description: str(fd, "description"),
     features: linesToArray(fd.get("features")),
-    images: linesToArray(fd.get("images")),
-    videoUrl: str(fd, "videoUrl"),
+    images: safeUrlList(linesToArray(fd.get("images"))),
+    videoUrl: safeUrl(str(fd, "videoUrl")),
     isActive: bool(fd, "isActive"),
     isFeatured: bool(fd, "isFeatured"),
     sortOrder: num(fd, "sortOrder"),
@@ -124,7 +161,7 @@ export async function saveService(_p: ActionState, fd: FormData): Promise<Action
   const id = num(fd, "id");
   const name = str(fd, "name");
   if (!name) return { error: "نام خدمت الزامی است." };
-  const gallery = linesToArray(fd.get("gallery"));
+  const gallery = safeUrlList(linesToArray(fd.get("gallery")));
   let slotRows: { time: string; price: number }[] = [];
   try {
     slotRows = JSON.parse(str(fd, "slots") || "[]");
@@ -147,7 +184,7 @@ export async function saveService(_p: ActionState, fd: FormData): Promise<Action
     description: str(fd, "description"),
     image: gallery[0] ?? "",
     gallery,
-    videoUrl: str(fd, "videoUrl"),
+    videoUrl: safeUrl(str(fd, "videoUrl")),
     price: num(fd, "price"),
     priceUnit: str(fd, "priceUnit"),
     workingHours: str(fd, "workingHours"),
@@ -212,7 +249,7 @@ export async function saveAttraction(_p: ActionState, fd: FormData): Promise<Act
     name,
     category: str(fd, "category") || "طبیعی",
     description: str(fd, "description"),
-    image: str(fd, "image"),
+    image: safeUrl(linesToArray(fd.get("image"))[0] ?? ""),
     distanceKm: Number(toEnDigits(str(fd, "distanceKm"))) || 0,
     travelTime: str(fd, "travelTime"),
     lat: Number(toEnDigits(str(fd, "lat"))) || 0,
@@ -284,16 +321,17 @@ export async function setReservationStatus(
     if (status === "pending_payment") patch.paidAt = null;
   }
 
-  if (status === "confirmed" && patch.reservationCode && res.status !== "confirmed") {
-    const when = res.kind === "room" ? `ورود ${formatJalali(res.checkIn)}` : `${formatJalali(res.checkIn)} سانس ${res.timeSlot}`;
-    const sms = await sendSms(
-      res.phone,
-      `${res.guestName} عزیز، رزرو شما در هتل آتالار قطعی شد.\nکد رزرو: ${patch.reservationCode}\n${res.itemName} - ${when}`,
-    );
-    patch.smsStatus = sms;
+  const [updated] = await db.update(reservations).set(patch).where(eq(reservations.id, id)).returning();
+  await syncReservationVouchers(updated);
+
+  if (status === "confirmed" && res.status !== "confirmed") {
+    const sms = await notifyGuest(updated, "guest_confirmed");
+    await db.update(reservations).set({ smsStatus: sms }).where(eq(reservations.id, id));
+  } else if (status === "rejected" && res.status !== "rejected") {
+    const sms = await notifyGuest(updated, "guest_rejected");
+    await db.update(reservations).set({ smsStatus: sms }).where(eq(reservations.id, id));
   }
 
-  await db.update(reservations).set(patch).where(eq(reservations.id, id));
   revalidatePath("/admin", "layout");
   revalidatePath(`/track/${res.trackingCode}`);
   return { ok: true, reservationCode: patch.reservationCode ?? null };
@@ -317,12 +355,21 @@ export async function updateReservation(_p: ActionState, fd: FormData): Promise<
       adminNote: str(fd, "adminNote"),
     })
     .where(eq(reservations.id, id));
+  await syncReservationVouchers(id);
   revalidatePath("/admin", "layout");
-  return { ok: true, message: "اطلاعات رزرو ذخیره شد." };
+  return { ok: true, message: "اطلاعات رزرو ذخیره شد و اسناد حسابداری به‌روز شد." };
+}
+
+export async function settleReservation(id: number, settled: boolean) {
+  await requireAdmin();
+  await db.update(reservations).set({ settledAt: settled ? new Date() : null }).where(eq(reservations.id, id));
+  await syncReservationVouchers(id);
+  revalidatePath("/admin", "layout");
 }
 
 export async function deleteReservation(id: number) {
   await requireAdmin();
+  await db.delete(journalEntries).where(andOp(eq(journalEntries.source, "reservation"), eq(journalEntries.reservationId, id)));
   await db.delete(reservations).where(eq(reservations.id, id));
   revalidatePath("/admin", "layout");
 }
@@ -347,6 +394,7 @@ export async function saveSettings(_p: ActionState, fd: FormData): Promise<Actio
   for (const key of keys) {
     if (!fd.has(key)) continue;
     const value = str(fd, key);
+    if (key === "smsApiKey" && (value === "" || value.includes("•"))) continue;
     await db
       .insert(settings)
       .values({ key, value })
@@ -371,6 +419,14 @@ export async function saveContent(_p: ActionState, fd: FormData): Promise<Action
   const clean: Record<string, unknown> = {};
   for (const k of Object.keys(defaults)) {
     if (parsed[k] !== undefined && typeof parsed[k] === typeof defaults[k]) clean[k] = parsed[k];
+  }
+  for (const k of ["heroMedia", "poolMedia"]) {
+    if (Array.isArray(clean[k])) {
+      clean[k] = (clean[k] as { url: string; type: string; duration: number }[])
+        .map((m) => ({ url: safeUrl(m?.url), type: m?.type === "video" ? "video" : "image", duration: Math.min(120, Math.max(0, Number(m?.duration) || 0)) }))
+        .filter((m) => m.url)
+        .slice(0, 20);
+    }
   }
   const value = JSON.stringify(clean);
   await db
@@ -403,4 +459,16 @@ export async function resetContent(key: "home" | "booking") {
   await requireAdmin();
   await db.delete(settings).where(eq(settings.key, `content_${key}`));
   revalidateSite();
+}
+
+/* ---------------- SMS ---------------- */
+export async function sendTestSms(mobile: string): Promise<{ ok: boolean; message: string }> {
+  await requireAdmin();
+  const m = toEnDigits(String(mobile)).replace(/[^\d]/g, "");
+  if (!/^09\d{9}$/.test(m)) return { ok: false, message: "شماره موبایل معتبر نیست." };
+  const r = await sendPattern("test", m, { code: "ATL-1234-TST", tracking: "TR-TEST01", name: "مهمان آزمایشی", item: "اتاق نمونه", date: "1404/01/01", phone: m });
+  revalidatePath("/admin/sms");
+  return r === "sent"
+    ? { ok: true, message: "پیامک آزمایشی ارسال شد." }
+    : { ok: false, message: r === "disabled" ? "پنل پیامک، کلید API یا قالب «تایید رزرو» تنظیم نشده است." : "ارسال ناموفق بود؛ جزئیات در گزارش پیامک‌ها." };
 }

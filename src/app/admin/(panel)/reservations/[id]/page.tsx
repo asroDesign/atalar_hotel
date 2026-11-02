@@ -21,6 +21,8 @@ export default async function ReservationDetailPage({ params }: { params: Promis
     ["تعداد نفرات", `${faNum(r.guests)} نفر`],
     ["مبلغ کل", `${formatPrice(r.totalPrice)} تومان`],
     ...(r.extraGuestFee > 0 ? ([["هزینه نفر اضافه", `${formatPrice(r.extraGuestFee)} تومان`]] as [string, React.ReactNode][]) : []),
+    ...(r.optionsTotal > 0 ? ([["خدمات و وعده‌ها", `${formatPrice(r.optionsTotal)} تومان`]] as [string, React.ReactNode][]) : []),
+    ["مانده قابل دریافت", r.settledAt ? `تسویه شد (${formatDateTime(r.settledAt)})` : `${formatPrice(Math.max(0, r.totalPrice - r.depositAmount))} تومان`],
     ["پیش‌پرداخت", `${formatPrice(r.depositAmount)} تومان`],
     ["روش پرداخت", r.paymentMethod === "gateway" ? "درگاه آنلاین" : r.paymentMethod === "card" ? "کارت به کارت" : r.paymentMethod === "manual" ? "ثبت دستی" : "—"],
     ["مرجع تراکنش", r.paymentRef ? <span key="p" className="font-mono" dir="ltr">{faNum(r.paymentRef)}</span> : "—"],
@@ -52,6 +54,33 @@ export default async function ReservationDetailPage({ params }: { params: Promis
                 </div>
               ))}
             </dl>
+            {(r.nightly.length > 0 || r.options.length > 0) && (
+              <div className="grid gap-4 border-b border-base-200 p-5 md:grid-cols-2">
+                {r.nightly.length > 0 && (
+                  <div>
+                    <div className="mb-2 text-sm font-bold">قیمت شب‌ها</div>
+                    <ul className="space-y-1 text-xs">
+                      {r.nightly.map((n) => (
+                        <li key={n.date} className="flex justify-between gap-2">
+                          <span>{formatJalali(n.date, true)} {n.kind === "holiday" && <span className="badge badge-error badge-soft badge-xs">تعطیل</span>}{n.kind === "peak" && <span className="badge badge-warning badge-soft badge-xs">پیک</span>}</span>
+                          <span>{formatPrice(n.price)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {r.options.length > 0 && (
+                  <div>
+                    <div className="mb-2 text-sm font-bold">خدمات انتخابی</div>
+                    <ul className="space-y-1 text-xs">
+                      {r.options.map((o) => (
+                        <li key={o.id} className="flex justify-between gap-2"><span>{o.title}</span><span>{o.amount ? formatPrice(o.amount) : "رایگان"}</span></li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
             {r.notes && <div className="bg-amber-50/60 p-5 text-sm leading-7 text-slate-700"><b>توضیحات مهمان:</b> {r.notes}</div>}
           </div>
           <ReservationEditForm r={r} />

@@ -11,6 +11,8 @@ import {
   testimonials,
 } from "@/db/schema";
 import { hashPassword } from "./auth";
+import { createVoucher, dateToISO, ensureAccounts } from "./accounting";
+import { ensureCalendar } from "./pricing";
 import { addDaysISO, todayISO, genReservationCode, genTrackingCode } from "./utils";
 
 const px = (id: number) =>
@@ -38,7 +40,12 @@ let seeding: Promise<void> | null = null;
 
 export function ensureSeeded(): Promise<void> {
   if (!seeding) {
-    seeding = runSeed().catch((e) => {
+    seeding = runSeed()
+      .then(async () => {
+        await ensureAccounts();
+        await ensureCalendar();
+      })
+      .catch((e) => {
       seeding = null;
       throw e;
     });
@@ -162,6 +169,15 @@ async function runSeed() {
         size: t.size,
         view: t.view,
         pricePerNight: t.price,
+        holidayPrice: Math.round((t.price * 1.25) / 10000) * 10000,
+        peakPrice: Math.round((t.price * 1.15) / 10000) * 10000,
+        extraGuestPrice: t.type.startsWith("سوئیت") ? 600000 : 450000,
+        options: [
+          { id: "bf", title: "صبحانه بوفه محلی", price: 0, unit: "per_person_night" as const, included: true },
+          { id: "lunch", title: "ناهار", price: 450000, unit: "per_person_night" as const, included: false },
+          { id: "dinner", title: "شام", price: 400000, unit: "per_person_night" as const, included: false },
+          { id: "transfer", title: "ترانسفر فرودگاه (رفت و برگشت)", price: 1500000, unit: "per_stay" as const, included: false },
+        ],
         shortDescription: t.short,
         description: `${t.short}\n\nاتاق ${n} در طبقه ${t.floor} هتل آتالار قرار دارد و با دکوراسیونی الهام‌گرفته از معماری آذربایجان، چوب گردو و پارچه‌های دست‌بافت طراحی شده است. لوله‌کشی آب گرم معدنی سرعین مستقیماً به حمام اتاق متصل است تا تجربه‌ای آرامش‌بخش پس از یک روز گردش داشته باشید.\n\nصبحانه بوفه محلی شامل عسل سبلان، پنیر لیقوان و نان تازه تنوری در قیمت اتاق لحاظ شده است.`,
         features: t.features,
@@ -502,6 +518,31 @@ async function runSeed() {
       status: "paid" as const,
     },
   ]);
+
+  // demo bookkeeping: opening capital and a few operating expenses
+  await ensureAccounts();
+  const d = (offset: number) => dateToISO(new Date(Date.now() + offset * 86400000));
+  const demo: [string, string, string, string, number][] = [
+    [d(-25), "واریز سرمایه اولیه به حساب بانکی", "110201", "310101", 1_500_000_000],
+    [d(-20), "پرداخت حقوق کارکنان", "510101", "110201", 186_000_000],
+    [d(-15), "قبوض آب، برق و گاز", "510201", "110201", 24_500_000],
+    [d(-10), "خرید مواد غذایی رستوران", "510401", "110101", 38_000_000],
+    [d(-7), "سرویس دوره‌ای و مواد ضدعفونی استخر", "510302", "110101", 12_800_000],
+    [d(-4), "تبلیغات اینترنتی", "520101", "110201", 9_500_000],
+    [d(-2), "فروش رستوران به مهمانان غیرمقیم", "110101", "420101", 17_400_000],
+  ];
+  for (const [date, description, dr, cr, amount] of demo) {
+    await createVoucher({
+      date,
+      description,
+      source: description.startsWith("فروش") ? "income" : description.startsWith("واریز") ? "manual" : "expense",
+      createdBy: "مدیر هتل",
+      lines: [
+        { code: dr, debit: amount, credit: 0 },
+        { code: cr, debit: 0, credit: amount },
+      ],
+    });
+  }
 
   await db.insert(messages).values([
     { name: "پریسا نادری", phone: "09125550000", email: "parisa@example.com", subject: "سؤال درباره استخر", body: "سلام، آیا امکان رزرو دو سانس پشت سر هم استخر خانوادگی وجود دارد؟ ما ۶ نفر هستیم." },

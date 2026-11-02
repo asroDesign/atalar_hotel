@@ -4,7 +4,9 @@ import { useActionState, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { BadgeCheck, CreditCard, XCircle, Ban, RotateCcw, Trash2 } from "lucide-react";
 import type { Reservation, ReservationStatus } from "@/db/schema";
-import { setReservationStatus, deleteReservation, updateReservation } from "@/app/actions/admin";
+import { setReservationStatus, deleteReservation, updateReservation, settleReservation } from "@/app/actions/admin";
+import { Wallet } from "lucide-react";
+import Link from "next/link";
 import { FormAlert, StatusBadge, SubmitButton, Toast } from "./ui";
 
 export function ReservationActions({ r }: { r: Reservation }) {
@@ -61,6 +63,22 @@ export function ReservationActions({ r }: { r: Reservation }) {
         {btn("rejected", "رد درخواست", XCircle, "btn-warning btn-soft")}
         {btn("cancelled", "لغو رزرو", Ban, "btn-neutral btn-soft")}
       </div>
+      {status === "confirmed" && r.totalPrice - r.depositAmount > 0 && (
+        <button
+          disabled={pending}
+          onClick={() =>
+            start(async () => {
+              await settleReservation(r.id, !r.settledAt);
+              setToast({ msg: r.settledAt ? "تسویه لغو شد" : "تسویه مانده ثبت و سند حسابداری صادر شد", tone: "success" });
+              router.refresh();
+            })
+          }
+          className={`btn btn-block justify-start ${r.settledAt ? "btn-ghost" : "btn-secondary"}`}
+        >
+          <Wallet className="h-4 w-4" /> {r.settledAt ? "لغو تسویه مانده" : "ثبت دریافت مانده هنگام پذیرش"}
+        </button>
+      )}
+      <Link href={`/admin/accounting/journal?q=${r.trackingCode}`} className="btn btn-ghost btn-sm btn-block">مشاهده اسناد حسابداری</Link>
       <button
         onClick={() => {
           if (!confirm("رزرو به‌طور کامل حذف شود؟")) return;

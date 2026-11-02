@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { Map as LMap } from "leaflet";
+import { escapeHtml } from "@/lib/sanitize";
 
 export type MapMarker = {
   lat: number;
@@ -59,10 +60,11 @@ export function MapView({
           iconSize: isHotel ? [46, 46] : [34, 34],
           iconAnchor: isHotel ? [23, 23] : [17, 17],
         });
+        if (!Number.isFinite(m.lat) || !Number.isFinite(m.lng)) return;
         L.marker([m.lat, m.lng], { icon })
           .addTo(map)
           .bindPopup(
-            `<div style="font-family:Vazirmatn,Tahoma;direction:rtl;text-align:right"><b>${m.title}</b>${m.subtitle ? `<br/><span style="color:#64748b;font-size:12px">${m.subtitle}</span>` : ""}</div>`,
+            `<div style="font-family:Vazirmatn,Tahoma;direction:rtl;text-align:right"><b>${escapeHtml(m.title)}</b>${m.subtitle ? `<br/><span style="color:#64748b;font-size:12px">${escapeHtml(m.subtitle)}</span>` : ""}</div>`,
           );
         pts.push([m.lat, m.lng]);
       });

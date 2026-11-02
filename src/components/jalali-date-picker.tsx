@@ -21,6 +21,7 @@ export function JalaliDatePicker({
   onChange,
   min,
   isDisabled,
+  dayInfo,
   placeholder = "انتخاب تاریخ",
   label,
 }: {
@@ -29,6 +30,7 @@ export function JalaliDatePicker({
   onChange: (iso: string) => void;
   min?: string;
   isDisabled?: (iso: string) => boolean;
+  dayInfo?: (iso: string) => { price?: number; kind?: string } | undefined;
   placeholder?: string;
   label?: string;
 }) {
@@ -81,7 +83,7 @@ export function JalaliDatePicker({
         <CalendarDays className="h-4 w-4 text-brand-600" />
       </button>
       {open && (
-        <div className="absolute right-0 z-40 mt-2 w-72 animate-fade-up rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl">
+        <div className="absolute right-0 z-40 mt-2 w-80 animate-fade-up rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl">
           <div className="mb-2 flex items-center justify-between">
             <button type="button" onClick={() => move(-1)} className="grid h-8 w-8 place-items-center rounded-lg hover:bg-slate-100">
               <ChevronRight className="h-4 w-4" />
@@ -106,6 +108,7 @@ export function JalaliDatePicker({
               const iso = jalaliToISO(view.jy, view.jm, i + 1);
               const disabled = (min && iso < min) || (isDisabled ? isDisabled(iso) : false);
               const selected = iso === value;
+              const info = dayInfo?.(iso);
               return (
                 <button
                   type="button"
@@ -116,20 +119,37 @@ export function JalaliDatePicker({
                     setOpen(false);
                   }}
                   className={cn(
-                    "aspect-square rounded-lg text-sm transition",
+                    "flex flex-col items-center justify-center rounded-lg text-sm transition",
+                    info ? "h-12" : "aspect-square",
                     selected
-                      ? "bg-brand-700 font-bold text-white"
+                      ? "bg-primary font-bold text-primary-content"
                       : disabled
-                        ? "cursor-not-allowed text-slate-300 line-through"
-                        : "text-slate-700 hover:bg-brand-50",
-                    iso === today && !selected && "ring-1 ring-gold-400",
+                        ? "cursor-not-allowed text-base-content/25 line-through"
+                        : info?.kind === "holiday"
+                          ? "text-error hover:bg-error/10"
+                          : info?.kind === "peak"
+                            ? "bg-warning/10 text-warning-content hover:bg-warning/20"
+                            : "hover:bg-primary/10",
+                    iso === today && !selected && "ring-1 ring-secondary",
                   )}
                 >
-                  {faNum(i + 1)}
+                  <span>{faNum(i + 1)}</span>
+                  {info?.price !== undefined && !disabled && (
+                    <span className={cn("text-[9px] leading-none", selected ? "text-primary-content/80" : "text-base-content/50")}>
+                      {faNum((info.price / 1_000_000).toFixed(info.price % 1_000_000 === 0 ? 0 : 1))}م
+                    </span>
+                  )}
                 </button>
               );
             })}
           </div>
+          {dayInfo && (
+            <div className="mt-2 flex flex-wrap gap-3 border-t border-base-200 pt-2 text-[10px] text-base-content/60">
+              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-error" /> تعطیل</span>
+              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-warning" /> پیک</span>
+              <span>قیمت‌ها به میلیون تومان</span>
+            </div>
+          )}
         </div>
       )}
     </div>

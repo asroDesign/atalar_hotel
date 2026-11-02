@@ -19,7 +19,14 @@ export function getPool(): Pool {
   if (!databaseUrl) {
     throw new Error("DATABASE_URL is required");
   }
-  const pool = new Pool({ connectionString: databaseUrl });
+  const pool = new Pool({
+    connectionString: databaseUrl,
+    // keep the connection pool small: each connection costs memory on both
+    // the Node process and the PostgreSQL server
+    max: Number(process.env.PG_POOL_MAX ?? 5),
+    idleTimeoutMillis: 10_000,
+    connectionTimeoutMillis: 10_000,
+  });
   globalForDb.__arenaNextJsPostgresqlPool = pool;
   return pool;
 }

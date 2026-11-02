@@ -1,7 +1,16 @@
 import type { Room, Service } from "@/db/schema";
 
 export function toBookRoom(r: Room) {
-  return { id: r.id, name: r.name, type: r.type, price: r.pricePerNight, maxGuests: r.capacity + r.extraBeds };
+  return {
+    id: r.id,
+    name: r.name,
+    type: r.type,
+    price: r.pricePerNight,
+    capacity: r.capacity,
+    maxGuests: r.capacity + r.extraBeds,
+    extraGuestPrice: r.extraGuestPrice,
+    options: r.options ?? [],
+  };
 }
 
 export function toBookService(s: Service) {

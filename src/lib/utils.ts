@@ -1,4 +1,5 @@
 import * as jalaali from "jalaali-js";
+import { safeUrl } from "./sanitize";
 
 export function cn(...classes: (string | false | null | undefined)[]) {
   return classes.filter(Boolean).join(" ");
@@ -142,15 +143,14 @@ export function parseVideo(url: string | null | undefined): VideoSource {
   if (!url) return null;
   const u = url.trim();
   if (!u) return null;
-  const yt = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{6,})/);
+  const yt = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{6,20})/);
   if (yt) return { kind: "iframe", src: `https://www.youtube.com/embed/${yt[1]}` };
-  const ap = u.match(/aparat\.com\/(?:v|video\/video\/embed\/videohash)\/([\w]+)/);
+  const ap = u.match(/aparat\.com\/(?:v|video\/video\/embed\/videohash)\/([\w]{3,20})/);
   if (ap) return { kind: "iframe", src: `https://www.aparat.com/video/video/embed/videohash/${ap[1]}/vt/frame` };
-  if (u.includes("<iframe")) {
-    const src = u.match(/src="([^"]+)"/);
-    if (src) return { kind: "iframe", src: src[1] };
-  }
-  return { kind: "file", src: u };
+  // arbitrary <iframe> embed codes are NOT accepted (XSS / clickjacking risk)
+  const safe = safeUrl(u);
+  if (!safe) return null;
+  return { kind: "file", src: safe };
 }
 
 export const statusMeta: Record<string, { label: string; badge: string; dot: string }> = {

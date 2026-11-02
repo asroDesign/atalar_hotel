@@ -4,10 +4,38 @@ import { useActionState, useEffect, useMemo, useState } from "react";
 import { BedDouble, Waves, ShieldCheck, Info, Users, AlertCircle, ScrollText } from "lucide-react";
 import { createReservation } from "@/app/actions/public";
 import { JalaliDatePicker } from "./jalali-date-picker";
-import { addDaysISO, cn, diffDays, faNum, formatPrice, todayISO } from "@/lib/utils";
+import { addDaysISO, cn, diffDays, faNum, formatJalali, formatPrice, todayISO } from "@/lib/utils";
 import { minServicePrice } from "@/lib/booking";
+import type { RoomOption } from "@/db/schema";
+import { ChevronDown, CheckCircle2 } from "lucide-react";
 
-export type BookRoom = { id: number; name: string; type: string; price: number; maxGuests: number };
+const unitLabel: Record<RoomOption["unit"], string> = {
+  per_night: "هر شب",
+  per_person_night: "هر نفر / شب",
+  per_stay: "کل اقامت",
+  per_person: "هر نفر",
+};
+
+export type BookRoom = {
+  id: number;
+  name: string;
+  type: string;
+  price: number;
+  capacity: number;
+  maxGuests: number;
+  extraGuestPrice: number;
+  options: RoomOption[];
+};
+type Quote = {
+  nights: { date: string; price: number; kind: string; title: string }[];
+  nightsCount: number;
+  roomTotal: number;
+  extraGuests: number;
+  extraGuestFee: number;
+  options: { id: string; title: string; amount: number }[];
+  optionsTotal: number;
+  total: number;
+};
 export type BookService = {
   id: number;
   name: string;
@@ -55,6 +83,11 @@ export function BookingForm({
   const [ranges, setRanges] = useState<{ checkIn: string; checkOut: string | null }[]>([]);
   const [taken, setTaken] = useState<string[]>([]);
   const [loadingAvail, setLoadingAvail] = useState(false);
+  const [prices, setPrices] = useState<Record<string, { p: number; k?: string }>>({});
+  const [optIds, setOptIds] = useState<string[]>([]);
+  const [quote, setQuote] = useState<Quote | null>(null);
+  const [quoting, setQuoting] = useState(false);
+  const [showNights, setShowNights] = useState(false);
 
   const room = rooms.find((r) => r.id === roomId);
   const service = services.find((s) => s.id === serviceId);
@@ -66,7 +99,11 @@ export function BookingForm({
     setLoadingAvail(true);
     fetch(`/api/availability?roomId=${roomId}`)
       .then((r) => r.json())
-      .then((d) => alive && setRanges(d.ranges ?? []))
+      .then((d) => {
+        if (!alive) return;
+        setRanges(d.ranges ?? []);
+        setPrices(d.prices ?? {});
+      })
       .finally(() => alive && setLoadingAvail(false));
     return () => {
       alive = false;
@@ -86,6 +123,34 @@ export function BookingForm({
     };
   }, [kind, serviceId, checkIn]);
 
+  useEffect(() => {
+    setOptIds([]);
+  }, [roomId]);
+
+  useEffect(() => {
+    if (kind !== "room" || !roomId || !checkIn || !checkOut || checkOut <= checkIn) {
+      setQuote(null);
+      return;
+    }
+    let alive = true;
+    setQuoting(true);
+    const t = setTimeout(() => {
+      fetch(`/api/quote?roomId=${roomId}&checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}&options=${optIds.join(",")}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => alive && setQuote(d))
+        .finally(() => alive && setQuoting(false));
+    }, 200);
+    return () => {
+      alive = false;
+      clearTimeout(t);
+    };
+  }, [kind, roomId, checkIn, checkOut, guests, optIds]);
+
+  const dayInfo = (iso: string) => {
+    const x = prices[iso];
+    return x ? { price: x.p, kind: x.k } : undefined;
+  };
+
   const isNightBooked = (iso: string) => ranges.some((r) => r.checkOut && iso >= r.checkIn && iso < r.checkOut);
   const isCheckoutBlocked = (iso: string) => {
     if (!checkIn || iso <= checkIn) return true;
@@ -96,8 +161,8 @@ export function BookingForm({
   const slotPrice = (t: string) => (service ? service.slotPrices[t] ?? service.price : 0);
   const extraCount = kind === "service" && service ? Math.max(0, guests - service.includedGuests) : 0;
   const extraFee = kind === "service" && service ? extraCount * service.extraGuestPrice : 0;
-  const basePrice = kind === "room" ? (room?.price ?? 0) * nights : slot ? slotPrice(slot) : service?.price ?? 0;
-  const total = basePrice + extraFee;
+  const basePrice = kind === "room" ? quote?.roomTotal ?? (room?.price ?? 0) * nights : slot ? slotPrice(slot) : service?.price ?? 0;
+  const total = kind === "room" ? quote?.total ?? basePrice : basePrice + extraFee;
   const rules = kind === "room" ? hotelRules : service?.rules ?? [];
   const [accepted, setAccepted] = useState(false);
   const deposit = Math.round((total * depositPercent) / 100 / 1000) * 1000;
@@ -162,7 +227,7 @@ export function BookingForm({
               >
                 {rooms.map((r) => (
                   <option key={r.id} value={r.id}>
-                    {r.name} — هر شب {formatPrice(r.price)} تومان
+                    {r.name} — از {formatPrice(r.price)} تومان / شب
                   </option>
                 ))}
               </select>
@@ -173,6 +238,7 @@ export function BookingForm({
               value={checkIn}
               min={today}
               isDisabled={isNightBooked}
+              dayInfo={dayInfo}
               onChange={(v) => {
                 setCheckIn(v);
                 if (!checkOut || checkOut <= v || isCheckoutBlockedFor(v, checkOut, ranges)) setCheckOut(addDaysISO(v, 1));
@@ -184,6 +250,7 @@ export function BookingForm({
               value={checkOut}
               min={checkIn ? addDaysISO(checkIn, 1) : addDaysISO(today, 1)}
               isDisabled={isCheckoutBlocked}
+              dayInfo={dayInfo}
               onChange={setCheckOut}
               placeholder={checkIn ? "انتخاب تاریخ خروج" : "ابتدا تاریخ ورود"}
             />
@@ -269,8 +336,41 @@ export function BookingForm({
             {kind === "service" && service && service.extraGuestPrice > 0 && (
               <> · تا {faNum(service.includedGuests)} نفر در قیمت سانس، هر نفر اضافه {formatPrice(service.extraGuestPrice)} تومان</>
             )}
+            {kind === "room" && room && room.extraGuestPrice > 0 && (
+              <> · ظرفیت استاندارد {faNum(room.capacity)} نفر، هر نفر اضافه شبی {formatPrice(room.extraGuestPrice)} تومان</>
+            )}
           </p>
         </div>
+        {kind === "room" && room && room.options.length > 0 && (
+          <div className={cn(!compact && "md:col-span-2")}>
+            <label className="field-label">خدمات و وعده‌های غذایی</label>
+            <input type="hidden" name="options" value={optIds.join(",")} />
+            <div className="grid gap-2 sm:grid-cols-2">
+              {room.options.map((o) =>
+                o.included ? (
+                  <div key={o.id} className="flex items-center gap-3 rounded-box border border-success/30 bg-success/5 px-3 py-2.5 text-sm">
+                    <CheckCircle2 className="h-5 w-5 text-success" />
+                    <span className="flex-1 font-medium">{o.title}</span>
+                    <span className="badge badge-success badge-soft badge-sm">رایگان</span>
+                  </div>
+                ) : (
+                  <label key={o.id} className={cn("flex cursor-pointer items-center gap-3 rounded-box border px-3 py-2.5 text-sm transition", optIds.includes(o.id) ? "border-primary bg-primary/5" : "border-base-300 hover:border-primary/50")}>
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-primary checkbox-sm"
+                      checked={optIds.includes(o.id)}
+                      onChange={(e) => setOptIds((ids) => (e.target.checked ? [...ids, o.id] : ids.filter((x) => x !== o.id)))}
+                    />
+                    <span className="flex-1 font-medium">{o.title}</span>
+                    <span className="text-left text-xs text-base-content/60">
+                      {formatPrice(o.price)} ت<span className="block text-[10px]">{unitLabel[o.unit]}</span>
+                    </span>
+                  </label>
+                ),
+              )}
+            </div>
+          </div>
+        )}
         <div>
           <label className="field-label">نام و نام خانوادگی *</label>
           <input name="guestName" className="input w-full" placeholder="مثلاً علی رضایی" required />
@@ -295,10 +395,45 @@ export function BookingForm({
 
       <div className="overflow-hidden rounded-2xl border border-brand-100 bg-gradient-to-br from-brand-50 to-white">
         <div className="space-y-2 p-4 text-sm">
-          <div className="flex justify-between text-slate-600">
-            <span>{kind === "room" ? `${room?.name ?? "—"} × ${faNum(nights)} شب` : `${service?.name ?? "—"}${slot ? ` · سانس ${faNum(slot)}` : ""}`}</span>
+          <div className="flex items-center justify-between text-slate-600">
+            <span className="flex items-center gap-1">
+              {kind === "room" ? `${room?.name ?? "—"} × ${faNum(nights)} شب` : `${service?.name ?? "—"}${slot ? ` · سانس ${faNum(slot)}` : ""}`}
+              {kind === "room" && quoting && <span className="loading loading-dots loading-xs text-primary" />}
+              {kind === "room" && quote && quote.nights.length > 0 && (
+                <button type="button" onClick={() => setShowNights((s) => !s)} className="btn btn-ghost btn-xs gap-0.5 px-1 text-primary">
+                  جزئیات شب‌ها <ChevronDown className={cn("h-3 w-3 transition", showNights && "rotate-180")} />
+                </button>
+              )}
+            </span>
             <span>{formatPrice(basePrice)} تومان</span>
           </div>
+          {kind === "room" && showNights && quote && (
+            <ul className="space-y-1 rounded-box bg-base-100 p-2 text-xs">
+              {quote.nights.map((n) => (
+                <li key={n.date} className="flex justify-between">
+                  <span className="flex items-center gap-1.5">
+                    {formatJalali(n.date, true)}
+                    {n.kind === "holiday" && <span className="badge badge-error badge-soft badge-xs">{n.title || "تعطیل"}</span>}
+                    {n.kind === "peak" && <span className="badge badge-warning badge-soft badge-xs">{n.title || "پیک"}</span>}
+                  </span>
+                  <span>{formatPrice(n.price)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {kind === "room" && quote && quote.extraGuestFee > 0 && (
+            <div className="flex justify-between text-slate-600">
+              <span>{faNum(quote.extraGuests)} نفر اضافه × {faNum(quote.nightsCount)} شب</span>
+              <span>{formatPrice(quote.extraGuestFee)} تومان</span>
+            </div>
+          )}
+          {kind === "room" &&
+            quote?.options.filter((o) => o.amount > 0).map((o) => (
+              <div key={o.id} className="flex justify-between text-slate-600">
+                <span>{o.title}</span>
+                <span>{formatPrice(o.amount)} تومان</span>
+              </div>
+            ))}
           {extraFee > 0 && (
             <div className="flex justify-between text-slate-600">
               <span>{faNum(extraCount)} نفر اضافه × {formatPrice(service?.extraGuestPrice ?? 0)}</span>

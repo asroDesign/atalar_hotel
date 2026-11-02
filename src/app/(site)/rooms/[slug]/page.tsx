@@ -7,6 +7,7 @@ import { rooms, services } from "@/db/schema";
 import { getSettings } from "@/lib/data";
 import { getContent } from "@/lib/content";
 import { toBookRoom, toBookService } from "@/lib/booking";
+import { optionUnitLabel } from "@/lib/pricing";
 import { faNum, formatPrice } from "@/lib/utils";
 import { Gallery, VideoPlayer } from "@/components/media";
 import { BookingForm } from "@/components/booking-form";
@@ -24,8 +25,8 @@ export default async function RoomDetail({ params }: { params: Promise<{ slug: s
   ]);
 
   const specs = [
-    { Icon: Users, label: "ظرفیت", value: `${faNum(room.capacity)} نفر` },
-    { Icon: PlusCircle, label: "تخت اضافه", value: room.extraBeds ? `${faNum(room.extraBeds)} نفر` : "ندارد" },
+    { Icon: Users, label: "ظرفیت استاندارد", value: `${faNum(room.capacity)} نفر` },
+    { Icon: PlusCircle, label: "حداکثر ظرفیت", value: room.extraBeds ? `${faNum(room.capacity + room.extraBeds)} نفر${room.extraGuestPrice ? ` (نفر اضافه ${formatPrice(room.extraGuestPrice)})` : ""}` : "بدون نفر اضافه" },
     { Icon: Maximize, label: "متراژ", value: `${faNum(room.size)} متر مربع` },
     { Icon: BedDouble, label: "نوع تخت", value: room.beds || "—" },
     { Icon: Eye, label: "چشم‌انداز", value: room.view || "—" },
@@ -82,6 +83,20 @@ export default async function RoomDetail({ params }: { params: Promise<{ slug: s
             </section>
           )}
 
+          {room.options.length > 0 && (
+            <section>
+              <h2 className="mb-4 text-xl font-extrabold">خدمات و وعده‌های غذایی</h2>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {room.options.map((o) => (
+                  <div key={o.id} className="flex items-center justify-between rounded-box bg-base-100 px-4 py-3 text-sm ring-1 ring-base-300">
+                    <span className="font-medium">{o.title}</span>
+                    {o.included ? <span className="badge badge-success badge-soft">رایگان</span> : <span className="text-base-content/70">{formatPrice(o.price)} تومان <span className="text-xs text-base-content/50">/ {optionUnitLabel[o.unit]}</span></span>}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           {room.videoUrl && (
             <section id="video" className="scroll-mt-28">
               <h2 className="mb-4 text-xl font-extrabold text-slate-900">ویدیوی معرفی اتاق</h2>
@@ -110,7 +125,7 @@ export default async function RoomDetail({ params }: { params: Promise<{ slug: s
         <aside className="lg:sticky lg:top-28 lg:self-start">
           <div className="card card-border bg-base-100 shadow-sm overflow-hidden block">
             <div className="bg-gradient-to-l from-brand-800 to-brand-950 p-5 text-white">
-              <div className="text-sm text-white/70">قیمت هر شب</div>
+              <div className="text-sm text-white/70">قیمت پایه هر شب (روزهای تعطیل و پیک متفاوت است)</div>
               <div className="mt-1 text-3xl font-black">{formatPrice(room.pricePerNight)} <span className="text-base font-medium text-white/70">تومان</span></div>
             </div>
             <div className="p-5">
