@@ -5,18 +5,25 @@ import { messages, reservations } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
 import { ensureSeeded } from "@/lib/seed";
 import { AdminShell } from "@/components/admin/ui";
+import { adminUsesDefaultPassword, getDemoState } from "@/lib/demo";
 
 export const dynamic = "force-dynamic";
 
 export default async function PanelLayout({ children }: { children: ReactNode }) {
   await ensureSeeded();
   const admin = await requireAdmin();
+  const [usesDefault, demo] = await Promise.all([adminUsesDefaultPassword(admin.id), getDemoState()]);
+  const warning = usesDefault
+    ? "شما با رمز عمومی نسخه نمایشی وارد شده‌اید. برای امنیت سایت، ایمیل و رمز عبور را تغییر دهید."
+    : demo.enabled
+      ? "سایت هنوز در حالت نمایشی است. برای استفاده واقعی، از حالت نمایشی خارج شوید."
+      : null;
   const [[p], [m]] = await Promise.all([
     db.select({ c: sql<number>`count(*)::int` }).from(reservations).where(inArray(reservations.status, ["paid"])),
     db.select({ c: sql<number>`count(*)::int` }).from(messages).where(eq(messages.isRead, false)),
   ]);
   return (
-    <AdminShell admin={admin} counts={{ pending: p.c, messages: m.c }}>
+    <AdminShell admin={admin} counts={{ pending: p.c, messages: m.c }} warning={warning}>
       {children}
     </AdminShell>
   );

@@ -29,6 +29,8 @@ import {
   CalendarDays,
   Calculator,
   MessageSquareText,
+  Rocket,
+  AlertTriangle,
 } from "lucide-react";
 import { logout } from "@/app/actions/admin";
 import { uploadFile } from "./media-inputs";
@@ -49,16 +51,19 @@ const nav = [
   { href: "/admin/messages", label: "پیام‌ها", Icon: MessageSquare, badge: "messages" as const },
   { href: "/admin/sms", label: "پنل پیامک", Icon: MessageSquareText },
   { href: "/admin/settings", label: "تنظیمات", Icon: Settings },
+  { href: "/admin/go-live", label: "راه‌اندازی نهایی", Icon: Rocket },
 ];
 
 export function AdminShell({
   children,
   admin,
   counts,
+  warning,
 }: {
   children: ReactNode;
   admin: { name: string; email: string };
   counts: { pending: number; messages: number };
+  warning?: string | null;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -134,7 +139,16 @@ export function AdminShell({
           </button>
           <span className="font-extrabold text-slate-800">پنل مدیریت آتالار</span>
         </header>
-        <main className="mx-auto max-w-7xl p-4 md:p-8">{children}</main>
+        <main className="mx-auto max-w-7xl p-4 md:p-8">
+          {warning && pathname !== "/admin/go-live" && (
+            <div role="alert" className="alert alert-warning mb-6 print:hidden">
+              <AlertTriangle className="h-5 w-5" />
+              <span className="text-sm">{warning}</span>
+              <Link href="/admin/go-live" className="btn btn-sm">راه‌اندازی نهایی</Link>
+            </div>
+          )}
+          {children}
+        </main>
       </div>
     </div>
   );

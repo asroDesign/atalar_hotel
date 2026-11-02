@@ -28,6 +28,7 @@ import {
 import { rateLimit, resetRateLimit, retryMessage } from "@/lib/rate-limit";
 import { cleanText, clientIp, safeUrl, safeUrlList } from "@/lib/security";
 import { syncReservationVouchers } from "@/lib/accounting";
+import { DEMO_PASSWORD, removeDemoData, type DemoCategory } from "@/lib/demo";
 import { notifyGuest, sendPattern } from "@/lib/sms";
 import { journalEntries, type RoomOption } from "@/db/schema";
 import { and as andOp } from "drizzle-orm";
@@ -78,6 +79,7 @@ export async function changePassword(_p: ActionState, fd: FormData): Promise<Act
   const [admin] = await db.select().from(admins).where(eq(admins.id, me.id));
   if (!admin || !verifyPassword(current, admin.passwordHash)) return { error: "رمز فعلی اشتباه است." };
   if (next.length < 8) return { error: "رمز جدید باید حداقل ۸ کاراکتر باشد." };
+  if (next === DEMO_PASSWORD) return { error: "این رمز، رمز عمومی نسخه نمایشی است؛ رمز دیگری انتخاب کنید." };
   await db.update(admins).set({ passwordHash: hashPassword(next) }).where(eq(admins.id, me.id));
   await revokeOtherSessions(me.id);
   return { ok: true, message: "رمز عبور تغییر کرد و سایر نشست‌های فعال خارج شدند." };
@@ -471,4 +473,54 @@ export async function sendTestSms(mobile: string): Promise<{ ok: boolean; messag
   return r === "sent"
     ? { ok: true, message: "پیامک آزمایشی ارسال شد." }
     : { ok: false, message: r === "disabled" ? "پنل پیامک، کلید API یا قالب «تایید رزرو» تنظیم نشده است." : "ارسال ناموفق بود؛ جزئیات در گزارش پیامک‌ها." };
+}
+
+/* ---------------- go-live / demo mode ---------------- */
+export async function updateAdminProfile(_p: ActionState, fd: FormData): Promise<ActionState> {
+  const me = await requireAdmin();
+  const name = cleanText(fd.get("name"), 80);
+  const email = cleanText(fd.get("email"), 190).toLowerCase();
+  const current = String(fd.get("current") ?? "").slice(0, 200);
+  const next = String(fd.get("next") ?? "").slice(0, 200);
+  const confirm = String(fd.get("confirm") ?? "").slice(0, 200);
+  const [admin] = await db.select().from(admins).where(eq(admins.id, me.id));
+  if (!admin || !verifyPassword(current, admin.passwordHash)) return { error: "رمز عبور فعلی اشتباه است." };
+  if (name.length < 2) return { error: "نام را وارد کنید." };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "ایمیل معتبر نیست." };
+  const patch: Partial<typeof admins.$inferInsert> = { name, email };
+  if (next) {
+    if (next.length < 8) return { error: "رمز جدید باید حداقل ۸ کاراکتر باشد." };
+    if (next !== confirm) return { error: "تکرار رمز جدید مطابقت ندارد." };
+    if (next === DEMO_PASSWORD) return { error: "این رمز، رمز عمومی نسخه نمایشی است؛ رمز دیگری انتخاب کنید." };
+    if (!/[A-Za-z]/.test(next) || !/\d/.test(next)) return { error: "رمز جدید باید شامل حرف و عدد باشد." };
+    patch.passwordHash = hashPassword(next);
+  }
+  try {
+    await db.update(admins).set(patch).where(eq(admins.id, me.id));
+  } catch {
+    return { error: "این ایمیل قبلاً استفاده شده است." };
+  }
+  if (next) await revokeOtherSessions(me.id);
+  revalidatePath("/admin", "layout");
+  return { ok: true, message: next ? "اطلاعات حساب و رمز عبور به‌روزرسانی شد." : "اطلاعات حساب به‌روزرسانی شد." };
+}
+
+export async function setDemoMode(enabled: boolean): Promise<{ ok: boolean; message: string }> {
+  await requireAdmin();
+  const value = enabled ? "1" : "0";
+  await db.insert(settings).values({ key: "demoMode", value }).onConflictDoUpdate({ target: settings.key, set: { value } });
+  revalidatePath("/admin", "layout");
+  return { ok: true, message: enabled ? "حالت نمایشی فعال شد." : "سایت از حالت نمایشی خارج شد." };
+}
+
+export async function cleanupDemoData(categories: DemoCategory[], confirmText: string): Promise<{ ok: boolean; message: string }> {
+  await requireAdmin();
+  if (confirmText.trim() !== "حذف") return { ok: false, message: "برای تأیید، کلمه «حذف» را تایپ کنید." };
+  const allowed: DemoCategory[] = ["reservations", "messages", "testimonials", "vouchers", "smsLogs"];
+  const list = categories.filter((c) => allowed.includes(c));
+  if (!list.length) return { ok: false, message: "موردی انتخاب نشده است." };
+  const removed = await removeDemoData(list);
+  revalidatePath("/", "layout");
+  const total = Object.values(removed).reduce((s, n) => s + (n ?? 0), 0);
+  return { ok: true, message: `${total} رکورد نمایشی حذف شد. داده‌های واقعی دست نخوردند.` };
 }

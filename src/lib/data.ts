@@ -24,6 +24,7 @@ export const defaultSettings = {
   instagram: "atalar.hotel",
   telegram: "atalarhotel",
   whatsapp: "989141234567",
+  demoMode: "1",
   smsProvider: "none",
   smsApiKey: "",
   smsAdminMobiles: "",

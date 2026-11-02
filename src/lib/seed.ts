@@ -57,11 +57,18 @@ async function runSeed() {
   const existing = await db.select({ c: sql<number>`count(*)::int` }).from(admins);
   if ((existing[0]?.c ?? 0) > 0) return;
 
-  await db.insert(admins).values({
-    name: "مدیر هتل",
-    email: "admin@atalar.ir",
-    passwordHash: hashPassword("admin123"),
-  }).onConflictDoNothing();
+  // Production installs: set ADMIN_EMAIL / ADMIN_PASSWORD (≥ 8 chars) before the first start.
+  const envEmail = (process.env.ADMIN_EMAIL ?? "").trim().toLowerCase();
+  const envPassword = process.env.ADMIN_PASSWORD ?? "";
+  const useEnv = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(envEmail) && envPassword.length >= 8;
+  await db
+    .insert(admins)
+    .values({
+      name: process.env.ADMIN_NAME?.trim() || "مدیر هتل",
+      email: useEnv ? envEmail : "admin@atalar.ir",
+      passwordHash: hashPassword(useEnv ? envPassword : "admin123"),
+    })
+    .onConflictDoNothing();
 
   const roomCount = await db.select({ c: sql<number>`count(*)::int` }).from(rooms);
   if ((roomCount[0]?.c ?? 0) > 0) return;
@@ -426,6 +433,10 @@ async function runSeed() {
       sortOrder: 7,
     },
   ]);
+
+  // Demo transactions (reservations, messages, reviews, sample vouchers).
+  // Skipped on production installs with SEED_DEMO=false.
+  if (process.env.SEED_DEMO === "false") return;
 
   await db.insert(testimonials).values([
     { name: "مریم احمدی", city: "تهران", rating: 5, body: "استخر خانوادگی واقعاً فوق‌العاده بود؛ تمیز، خصوصی و آب گرم. بچه‌ها اصلاً دلشان نمی‌خواست بیرون بیایند!" },

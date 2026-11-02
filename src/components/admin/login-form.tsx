@@ -4,22 +4,22 @@ import { useActionState } from "react";
 import { LogIn, Mail, Lock, AlertCircle } from "lucide-react";
 import { login } from "@/app/actions/admin";
 
-export function LoginForm() {
+export function LoginForm({ demo }: { demo?: { email: string; password: string } | null }) {
   const [state, action, pending] = useActionState(login, null);
   return (
-    <form action={action} className="space-y-4">
+    <form action={action} className="space-y-4" autoComplete="on">
       <fieldset className="fieldset">
         <legend className="fieldset-legend">ایمیل</legend>
         <label className="input w-full">
           <Mail className="h-4 w-4 opacity-50" />
-          <input name="email" type="email" dir="ltr" defaultValue="admin@atalar.ir" className="grow text-left" required />
+          <input name="email" type="email" dir="ltr" autoComplete="username" defaultValue={demo?.email ?? ""} className="grow text-left" required />
         </label>
       </fieldset>
       <fieldset className="fieldset">
         <legend className="fieldset-legend">رمز عبور</legend>
         <label className="input w-full">
           <Lock className="h-4 w-4 opacity-50" />
-          <input name="password" type="password" dir="ltr" defaultValue="admin123" className="grow text-left" required />
+          <input name="password" type="password" dir="ltr" autoComplete="current-password" defaultValue={demo?.password ?? ""} className="grow text-left" required />
         </label>
       </fieldset>
       {state?.error && (
