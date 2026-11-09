@@ -69,7 +69,7 @@ export function SiteFooter({ s }: { s: SiteSettings }) {
       </div>
       <div className="relative border-t border-white/10 py-6 text-center text-xs text-slate-500">
         © {faNum(1404)} تمامی حقوق برای {s.hotelName} محفوظ است. ·{" "}
-        <Link href="/admin" className="hover:text-gold-300">ورود مدیریت</Link>
+        <Link href="https://asrodev.ir" className="hover:text-gold-300">طراحی توسط آسرودیزاین</Link>
       </div>
     </footer>
   );
