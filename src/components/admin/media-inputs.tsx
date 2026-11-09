@@ -153,7 +153,7 @@ export function MediaListEditor({ value, onChange }: { value: MediaItemValue[]; 
           {busy ? <span className="loading loading-spinner loading-sm" /> : <Upload className="h-4 w-4" />}
           {busy ? `در حال آپلود ${progress}` : "آپلود ویدیو / GIF"}
         </button>
-        <input ref={fileRef} type="file" accept="video/*,image/*" multiple hidden onChange={(e) => onFiles(e.target.files)} />
+        <input ref={fileRef} type="file" accept="video/*,image/*,.heic,.heif" multiple hidden onChange={(e) => onFiles(e.target.files)} />
       </div>
       <p className="text-xs text-slate-400">ویدیوها بی‌صدا و تا پایان پخش می‌شوند، سپس رسانه بعدی نمایش داده می‌شود. حداکثر حجم ویدیو ۱۵۰ مگابایت (MP4 / WEBM) و تصویر ۱۰ مگابایت.</p>
       {err && <p className="text-xs text-rose-600">{err}</p>}

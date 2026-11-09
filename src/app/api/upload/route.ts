@@ -3,7 +3,7 @@ import { randomBytes } from "crypto";
 import { db } from "@/db";
 import { mediaFiles } from "@/db/schema";
 import { getCurrentAdmin } from "@/lib/auth";
-import { allowedMime, isSameOrigin } from "@/lib/security";
+import { allowedMime, isSameOrigin, resolveUploadMime } from "@/lib/security";
 import { rateLimit } from "@/lib/rate-limit";
 import { CHUNK_SIZE, MAX_IMAGE, MAX_VIDEO } from "@/lib/media";
 
@@ -19,10 +19,10 @@ export async function POST(req: Request) {
   if (!rl.ok) return NextResponse.json({ error: "تعداد آپلودها بیش از حد مجاز است" }, { status: 429 });
 
   const body = (await req.json().catch(() => null)) as { name?: string; mime?: string; size?: number } | null;
-  const mime = String(body?.mime ?? "");
+  const mime = resolveUploadMime(String(body?.mime ?? ""), String(body?.name ?? ""));
   const size = Number(body?.size ?? 0);
   const kind = allowedMime(mime);
-  if (!kind) return NextResponse.json({ error: "فقط تصویر (JPG, PNG, WEBP, GIF) یا ویدیو (MP4, WEBM) مجاز است" }, { status: 400 });
+  if (!kind) return NextResponse.json({ error: "فقط تصویر (JPG, PNG, WEBP, GIF, HEIC) یا ویدیو (MP4, WEBM) مجاز است" }, { status: 400 });
   if (!size || size < 16) return NextResponse.json({ error: "فایل خالی است" }, { status: 400 });
   if (kind === "image" && size > MAX_IMAGE) return NextResponse.json({ error: "حداکثر حجم تصویر ۱۰ مگابایت است" }, { status: 400 });
   if (kind === "video" && size > MAX_VIDEO) return NextResponse.json({ error: "حداکثر حجم ویدیو ۱۵۰ مگابایت است" }, { status: 400 });

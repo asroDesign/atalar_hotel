@@ -41,13 +41,36 @@ export function isSameOrigin(req: Request): boolean {
   }
 }
 
-const IMAGE_MIMES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
+const HEIF_MIMES = ["image/heic", "image/heif", "image/heic-sequence", "image/heif-sequence"];
+const IMAGE_MIMES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif", ...HEIF_MIMES];
 const VIDEO_MIMES = ["video/mp4", "video/webm", "video/quicktime", "video/ogg"];
 
 export function allowedMime(mime: string): "image" | "video" | null {
-  if (IMAGE_MIMES.includes(mime)) return "image";
-  if (VIDEO_MIMES.includes(mime)) return "video";
+  const normalized = mime.trim().toLowerCase().split(";")[0];
+  if (IMAGE_MIMES.includes(normalized)) return "image";
+  if (VIDEO_MIMES.includes(normalized)) return "video";
   return null; // SVG, HTML, etc. are rejected (stored-XSS risk)
+}
+
+/** Browsers may leave HEIC MIME blank; use its extension, then verify its signature. */
+export function resolveUploadMime(mime: string, name: string): string {
+  const normalized = mime.trim().toLowerCase().split(";")[0];
+  if (allowedMime(normalized)) return normalized;
+  if (!normalized || normalized === "application/octet-stream") {
+    const extension = name.toLowerCase().split(".").pop() ?? "";
+    const byExtension: Record<string, string> = {
+      jpg: "image/jpeg",
+      jpeg: "image/jpeg",
+      png: "image/png",
+      webp: "image/webp",
+      gif: "image/gif",
+      avif: "image/avif",
+      heic: "image/heic",
+      heif: "image/heif",
+    };
+    return byExtension[extension] ?? normalized;
+  }
+  return normalized;
 }
 
 /** Verify the file signature (magic bytes) matches the declared MIME type. */
@@ -63,10 +86,18 @@ export function magicMatches(mime: string, head: Uint8Array): boolean {
       return at(0, [0x47, 0x49, 0x46, 0x38]);
     case "image/webp":
       return at(0, [0x52, 0x49, 0x46, 0x46]) && at(8, [0x57, 0x45, 0x42, 0x50]);
-    case "image/avif":
     case "video/mp4":
     case "video/quicktime":
       return at(4, [0x66, 0x74, 0x79, 0x70]); // ....ftyp
+    case "image/avif":
+      return at(4, [0x66, 0x74, 0x79, 0x70]); // ....ftyp
+    case "image/heic":
+    case "image/heif":
+    case "image/heic-sequence":
+    case "image/heif-sequence":
+      return at(4, [0x66, 0x74, 0x79, 0x70]) &&
+        ["heic", "heix", "hevc", "hevx", "heim", "heis", "hevm", "hevs", "mif1", "msf1"]
+          .includes(String.fromCharCode(...b.slice(8, 12)));
     case "video/webm":
       return at(0, [0x1a, 0x45, 0xdf, 0xa3]);
     case "video/ogg":

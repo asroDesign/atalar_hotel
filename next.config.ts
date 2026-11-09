@@ -20,6 +20,7 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
   images: { unoptimized: true },
+  serverExternalPackages: ["libheif-js"],
   async headers() {
     return [
       {

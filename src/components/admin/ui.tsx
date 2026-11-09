@@ -302,7 +302,7 @@ export function ImageListInput({ name, initial, single = false }: { name: string
         <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading} className="btn">
           {uploading ? <span className="loading loading-spinner loading-sm" /> : <Upload className="h-4 w-4" />} آپلود
         </button>
-        <input ref={fileRef} type="file" accept="image/*" multiple={!single} hidden onChange={(e) => onFiles(e.target.files)} />
+        <input ref={fileRef} type="file" accept="image/*,.heic,.heif" multiple={!single} hidden onChange={(e) => onFiles(e.target.files)} />
       </div>
       {err && <p className="mt-2 text-xs text-rose-600">{err}</p>}
     </div>

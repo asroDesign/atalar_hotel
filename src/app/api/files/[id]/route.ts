@@ -84,7 +84,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
     const original = Buffer.from(file.data, "base64");
     if (!original.length || original.length > MAX_IMAGE) return new Response("Not found", { status: 404 });
     try {
-      const preview = await createImagePreview(original);
+      const preview = await createImagePreview(original, file.mime === "image/gif");
       await db.update(uploads).set({ previewData: preview }).where(eq(uploads.id, id));
       return previewResponse(preview);
     } catch {
@@ -117,7 +117,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
         );
     if (!original.length || original.length > MAX_IMAGE) return new Response("Not found", { status: 404 });
     try {
-      const preview = await createImagePreview(original);
+      const preview = await createImagePreview(original, m.mime === "image/gif");
       await db.update(mediaFiles).set({ previewData: preview }).where(eq(mediaFiles.id, id));
       return previewResponse(preview);
     } catch {

@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { and, asc, eq, sql } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { mediaChunks, mediaFiles } from "@/db/schema";
-import { createImagePreview } from "@/lib/image-preview";
+import { convertImageToWebp } from "@/lib/image-preview";
 import { getCurrentAdmin } from "@/lib/auth";
 import { isSameOrigin, magicMatches } from "@/lib/security";
 
@@ -63,6 +63,7 @@ export async function POST(req: Request, ctx: Ctx) {
   if (Number(n) !== total || Number(bytes) !== file.size) {
     return NextResponse.json({ error: "همه قطعات فایل دریافت نشده است" }, { status: 400 });
   }
+  let fullImage: Buffer | null = null;
   let previewData: Buffer | null = null;
   if (file.mime.startsWith("image/")) {
     try {
@@ -73,15 +74,25 @@ export async function POST(req: Request, ctx: Ctx) {
         .orderBy(asc(mediaChunks.idx));
       const original = Buffer.concat(chunks.map((chunk) => Buffer.from(chunk.data)));
       if (original.length !== file.size) throw new Error("Uploaded image size does not match metadata");
-      previewData = await createImagePreview(original);
+      ({ full: fullImage, preview: previewData } = await convertImageToWebp(original, file.mime));
     } catch (error) {
-      console.error("[upload] image preview generation failed", error);
+      console.error("[upload] image conversion failed", error);
       await db.delete(mediaFiles).where(eq(mediaFiles.id, id));
-      return NextResponse.json({ error: "ساخت نسخه کم‌حجم تصویر ناموفق بود؛ فایل تصویری معتبر انتخاب کنید." }, { status: 400 });
+      return NextResponse.json({ error: "تبدیل تصویر به WebP ناموفق بود؛ فایل تصویری معتبر انتخاب کنید." }, { status: 400 });
     }
   }
 
-  await db.update(mediaFiles).set({ previewData, complete: true }).where(and(eq(mediaFiles.id, id)));
+  if (fullImage && previewData) {
+    await db.transaction(async (tx) => {
+      await tx
+        .update(mediaFiles)
+        .set({ mime: "image/webp", size: fullImage.length, data: fullImage, previewData, chunkSize: 0, complete: true })
+        .where(eq(mediaFiles.id, id));
+      await tx.delete(mediaChunks).where(eq(mediaChunks.fileId, id));
+    });
+  } else {
+    await db.update(mediaFiles).set({ complete: true }).where(eq(mediaFiles.id, id));
+  }
   return NextResponse.json({ ok: true, url: `/api/files/${id}` });
 }
 
