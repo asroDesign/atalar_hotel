@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { ProgressiveImage } from "@/components/progressive-image";
 
 export type PlaylistItem = { url: string; type: "video" | "image"; duration: number };
 
@@ -76,8 +77,15 @@ export function MediaPlaylist({
             onError={() => visible && len > 1 && next()}
           />
         ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img key={m.url + idx} src={m.url} alt="" className={cn(cls, visible && "animate-[kenburns_12s_ease-out_both]")} />
+          <div key={m.url + idx} className={cls}>
+            <ProgressiveImage
+              src={m.url}
+              alt=""
+              previewOnly={!visible}
+              loading={near ? "eager" : "lazy"}
+              className={cn("absolute inset-0 h-full w-full object-cover", visible && "animate-[kenburns_12s_ease-out_both]")}
+            />
+          </div>
         );
       })}
       {showIndicators && len > 1 && (

@@ -194,6 +194,7 @@ export const uploads = pgTable("uploads", {
   id: text("id").primaryKey(),
   mime: text("mime").notNull(),
   data: text("data").notNull(),
+  previewData: bytea("preview_data"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -203,6 +204,7 @@ export const mediaFiles = pgTable("media_files", {
   name: text("name").notNull().default(""),
   size: integer("size").notNull().default(0),
   data: bytea("data").notNull(),
+  previewData: bytea("preview_data"),
   chunkSize: integer("chunk_size").notNull().default(0),
   complete: boolean("complete").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),

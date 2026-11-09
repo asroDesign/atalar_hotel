@@ -12,6 +12,7 @@ import { TrackSection } from "@/components/site/booking-sections";
 import { DynIcon } from "@/components/dyn-icon";
 import { MapView } from "@/components/map-view";
 import { MediaPlaylist } from "@/components/media-playlist";
+import { ProgressiveImage } from "@/components/progressive-image";
 
 export default async function HomePage() {
   const [s, { home: h }] = await Promise.all([getSettings(), getContent()]);
@@ -184,8 +185,7 @@ export default async function HomePage() {
           <div className="no-scrollbar -mx-6 flex snap-x gap-5 overflow-x-auto px-6 pb-4">
             {svcList.map((sv) => (
               <Link key={sv.id} href={`/services/${sv.slug}`} className="group relative h-80 w-72 shrink-0 snap-start overflow-hidden rounded-3xl">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={sv.image || "/images/hero.jpg"} alt={sv.name} className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-110" />
+                <ProgressiveImage src={sv.image || "/images/hero.jpg"} alt={sv.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-brand-950/95 via-brand-950/30" />
                 <div className="absolute inset-x-0 bottom-0 p-5 text-white">
                   <span className="frost mb-3 grid h-11 w-11 place-items-center rounded-xl"><DynIcon name={sv.icon} className="h-5 w-5 text-gold-300" /></span>

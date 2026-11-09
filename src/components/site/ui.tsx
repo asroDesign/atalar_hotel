@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BedDouble, Maximize, Users, ArrowLeft, Eye, PlayCircle, MapPin, Clock } from "lucide-react";
 import type { Attraction, Room } from "@/db/schema";
 import { cn, faNum, formatPrice } from "@/lib/utils";
+import { ProgressiveImage } from "@/components/progressive-image";
 
 export function SectionTitle({
   eyebrow,
@@ -54,8 +55,7 @@ export function RoomCard({ room }: { room: Room }) {
       className="group flex flex-col overflow-hidden rounded-3xl border border-slate-200/70 bg-white shadow-sm transition duration-500 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-brand-900/10"
     >
       <div className="relative aspect-[4/3] overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={room.images[0] ?? "/images/hero.jpg"} alt={room.name} className="h-full w-full object-cover transition duration-700 group-hover:scale-110" />
+        <ProgressiveImage src={room.images[0] ?? "/images/hero.jpg"} alt={room.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-110" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent" />
         <span className="frost absolute right-3 top-3 rounded-full px-3 py-1 text-xs font-semibold text-white">{room.type}</span>
         {room.videoUrl && (
@@ -88,8 +88,7 @@ export function RoomCard({ room }: { room: Room }) {
 export function AttractionCard({ a }: { a: Attraction }) {
   return (
     <div className="group relative aspect-[3/4] overflow-hidden rounded-3xl shadow-lg">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={a.image || "/images/hero.jpg"} alt={a.name} className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-110" />
+      <ProgressiveImage src={a.image || "/images/hero.jpg"} alt={a.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-110" />
       <div className="absolute inset-0 bg-gradient-to-t from-brand-950 via-brand-950/30 to-transparent" />
       <span className="frost absolute right-4 top-4 rounded-full px-3 py-1 text-xs font-semibold text-white">{a.category}</span>
       <div className="absolute inset-x-0 bottom-0 p-5 text-white">

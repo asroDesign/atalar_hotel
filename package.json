@@ -21,7 +21,8 @@
     "pg": "8.20.0",
     "react": "19.2.6",
     "react-dom": "19.2.6",
-    "vazirmatn": "^33.0.3"
+    "vazirmatn": "^33.0.3",
+    "sharp": "^0.35.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.17",

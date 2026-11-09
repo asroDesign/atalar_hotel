@@ -1,6 +1,8 @@
-import { eq, sql } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { uploads } from "@/db/schema";
+import { mediaChunks, mediaFiles, uploads } from "@/db/schema";
+import { createImagePreview } from "@/lib/image-preview";
+import { MAX_IMAGE } from "@/lib/media";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -46,21 +48,82 @@ function streamRange(
   });
 }
 
+function previewResponse(data: Buffer) {
+  return new Response(new Uint8Array(data), {
+    headers: { ...baseHeaders("image/webp"), "Content-Length": String(data.length) },
+  });
+}
+
 export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
   if (!/^[a-zA-Z0-9]{8,64}$/.test(id)) return new Response("Not found", { status: 404 });
+  const variant = new URL(req.url).searchParams.get("variant");
+  const previewRequested = variant === "preview";
 
-  const meta = await db.execute<{ mime: string; size: number; chunk_size: number; complete: boolean; len: number }>(
-    sql`select mime, size, chunk_size, complete, octet_length(data)::int as len from media_files where id = ${id}`,
+  const meta = await db.execute<{
+    mime: string;
+    size: number;
+    chunk_size: number;
+    complete: boolean;
+    len: number;
+    preview_len: number | null;
+  }>(
+    sql`select mime, size, chunk_size, complete, octet_length(data)::int as len, octet_length(preview_data)::int as preview_len from media_files where id = ${id}`,
   );
   const m = meta.rows[0];
 
   if (!m) {
     const [file] = await db.select().from(uploads).where(eq(uploads.id, id));
     if (!file) return new Response("Not found", { status: 404 });
-    return new Response(new Uint8Array(Buffer.from(file.data, "base64")), { headers: baseHeaders(file.mime) });
+    if (!previewRequested) {
+      return new Response(new Uint8Array(Buffer.from(file.data, "base64")), { headers: baseHeaders(file.mime) });
+    }
+    if (!file.mime.startsWith("image/")) return new Response("Not found", { status: 404 });
+    if (file.previewData) return previewResponse(Buffer.from(file.previewData));
+    if (file.data.length > Math.ceil((MAX_IMAGE * 4) / 3) + 16) return new Response("Not found", { status: 404 });
+    const original = Buffer.from(file.data, "base64");
+    if (!original.length || original.length > MAX_IMAGE) return new Response("Not found", { status: 404 });
+    try {
+      const preview = await createImagePreview(original);
+      await db.update(uploads).set({ previewData: preview }).where(eq(uploads.id, id));
+      return previewResponse(preview);
+    } catch {
+      return new Response("Not found", { status: 404 });
+    }
   }
   if (!m.complete) return new Response("Not found", { status: 404 });
+
+  if (previewRequested) {
+    if (!m.mime.startsWith("image/")) return new Response("Not found", { status: 404 });
+    if (Number(m.preview_len) > 0) {
+      const saved = await db.execute<{ data: Buffer }>(sql`select preview_data as data from media_files where id = ${id}`);
+      const preview = saved.rows[0]?.data;
+      if (preview) return previewResponse(Buffer.from(preview));
+    }
+
+    const chunked = Number(m.chunk_size) > 0;
+    const sourceSize = chunked ? Number(m.size) : Number(m.len);
+    if (!sourceSize || sourceSize > MAX_IMAGE) return new Response("Not found", { status: 404 });
+    const original = chunked
+      ? Buffer.concat(
+          (await db
+            .select({ data: mediaChunks.data })
+            .from(mediaChunks)
+            .where(eq(mediaChunks.fileId, id))
+            .orderBy(asc(mediaChunks.idx))).map((chunk) => Buffer.from(chunk.data)),
+        )
+      : Buffer.from(
+          (await db.select({ data: mediaFiles.data }).from(mediaFiles).where(eq(mediaFiles.id, id)))[0]?.data ?? Buffer.alloc(0),
+        );
+    if (!original.length || original.length > MAX_IMAGE) return new Response("Not found", { status: 404 });
+    try {
+      const preview = await createImagePreview(original);
+      await db.update(mediaFiles).set({ previewData: preview }).where(eq(mediaFiles.id, id));
+      return previewResponse(preview);
+    } catch {
+      return new Response("Not found", { status: 404 });
+    }
+  }
 
   const chunked = Number(m.chunk_size) > 0;
   const size = chunked ? Number(m.size) : Number(m.len);

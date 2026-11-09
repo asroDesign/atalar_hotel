@@ -6,6 +6,7 @@ import { services } from "@/db/schema";
 import { PageHero, EmptyState } from "@/components/site/ui";
 import { DynIcon } from "@/components/dyn-icon";
 import { formatPrice } from "@/lib/utils";
+import { ProgressiveImage } from "@/components/progressive-image";
 
 export const metadata = { title: "خدمات هتل" };
 
@@ -22,8 +23,7 @@ export default async function ServicesPage() {
             {list.map((s, i) => (
               <Link key={s.id} href={`/services/${s.slug}`} className={`group grid overflow-hidden rounded-3xl border border-slate-200/70 bg-white shadow-sm transition hover:shadow-2xl sm:grid-cols-2 ${i === 0 ? "md:col-span-2 md:grid-cols-[1.3fr_1fr]" : ""}`}>
                 <div className="relative min-h-56 overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={s.image || "/images/hero.jpg"} alt={s.name} className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-110" />
+                  <ProgressiveImage src={s.image || "/images/hero.jpg"} alt={s.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-110" />
                   {s.isBookable && <span className="absolute right-4 top-4 rounded-full bg-gold-400 px-3 py-1 text-xs font-bold text-brand-950">رزرو آنلاین</span>}
                 </div>
                 <div className="flex flex-col p-6">

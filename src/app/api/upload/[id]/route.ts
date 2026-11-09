@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { and, eq, sql } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { mediaChunks, mediaFiles } from "@/db/schema";
+import { createImagePreview } from "@/lib/image-preview";
 import { getCurrentAdmin } from "@/lib/auth";
 import { isSameOrigin, magicMatches } from "@/lib/security";
 
@@ -62,7 +63,25 @@ export async function POST(req: Request, ctx: Ctx) {
   if (Number(n) !== total || Number(bytes) !== file.size) {
     return NextResponse.json({ error: "همه قطعات فایل دریافت نشده است" }, { status: 400 });
   }
-  await db.update(mediaFiles).set({ complete: true }).where(and(eq(mediaFiles.id, id)));
+  let previewData: Buffer | null = null;
+  if (file.mime.startsWith("image/")) {
+    try {
+      const chunks = await db
+        .select({ data: mediaChunks.data })
+        .from(mediaChunks)
+        .where(eq(mediaChunks.fileId, id))
+        .orderBy(asc(mediaChunks.idx));
+      const original = Buffer.concat(chunks.map((chunk) => Buffer.from(chunk.data)));
+      if (original.length !== file.size) throw new Error("Uploaded image size does not match metadata");
+      previewData = await createImagePreview(original);
+    } catch (error) {
+      console.error("[upload] image preview generation failed", error);
+      await db.delete(mediaFiles).where(eq(mediaFiles.id, id));
+      return NextResponse.json({ error: "ساخت نسخه کم‌حجم تصویر ناموفق بود؛ فایل تصویری معتبر انتخاب کنید." }, { status: 400 });
+    }
+  }
+
+  await db.update(mediaFiles).set({ previewData, complete: true }).where(and(eq(mediaFiles.id, id)));
   return NextResponse.json({ ok: true, url: `/api/files/${id}` });
 }
 

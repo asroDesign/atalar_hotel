@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Expand, X, PlayCircle } from "lucide-react";
 import { cn, parseVideo } from "@/lib/utils";
+import { ProgressiveImage } from "@/components/progressive-image";
 
 export function VideoPlayer({ url, poster, className }: { url: string; poster?: string; className?: string }) {
   const v = parseVideo(url);
@@ -37,8 +38,7 @@ export function Gallery({ images, alt, hasVideo }: { images: string[]; alt: stri
   return (
     <div>
       <div className="group relative aspect-[16/10] overflow-hidden rounded-3xl bg-slate-200">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img key={list[active]} src={list[active]} alt={alt} className="h-full w-full animate-fade-up object-cover" />
+        <ProgressiveImage src={list[active]} alt={alt} className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent" />
         <button onClick={() => setLightbox(true)} className="frost absolute left-4 top-4 grid h-10 w-10 place-items-center rounded-xl text-white">
           <Expand className="h-4 w-4" />
@@ -62,9 +62,8 @@ export function Gallery({ images, alt, hasVideo }: { images: string[]; alt: stri
       {list.length > 1 && (
         <div className="no-scrollbar mt-3 flex gap-2 overflow-x-auto">
           {list.map((src, i) => (
-            <button key={src + i} onClick={() => setActive(i)} className={cn("h-20 w-28 shrink-0 overflow-hidden rounded-2xl ring-2 transition", i === active ? "ring-gold-400" : "opacity-60 ring-transparent hover:opacity-100")}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" className="h-full w-full object-cover" />
+            <button key={src + i} onClick={() => setActive(i)} className={cn("relative h-20 w-28 shrink-0 overflow-hidden rounded-2xl ring-2 transition", i === active ? "ring-gold-400" : "opacity-60 ring-transparent hover:opacity-100")}>
+              <ProgressiveImage src={src} alt="" previewOnly loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
             </button>
           ))}
         </div>
@@ -72,8 +71,9 @@ export function Gallery({ images, alt, hasVideo }: { images: string[]; alt: stri
       {lightbox && (
         <div className="fixed inset-0 z-[100] grid place-items-center bg-black/90 p-4 backdrop-blur" onClick={() => setLightbox(false)}>
           <button className="absolute left-5 top-5 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white"><X /></button>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={list[active]} alt={alt} className="max-h-[85vh] max-w-full rounded-2xl object-contain" onClick={(e) => e.stopPropagation()} />
+          <div className="relative grid max-h-[85vh] max-w-full place-items-center" onClick={(e) => e.stopPropagation()}>
+            <ProgressiveImage src={list[active]} alt={alt} className="col-start-1 row-start-1 max-h-[85vh] max-w-full rounded-2xl object-contain" />
+          </div>
         </div>
       )}
     </div>
