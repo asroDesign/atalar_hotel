@@ -83,7 +83,7 @@ export function JalaliDatePicker({
         <CalendarDays className="h-4 w-4 text-brand-600" />
       </button>
       {open && (
-        <div className="absolute right-0 z-40 mt-2 w-80 animate-fade-up rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl">
+        <div className="absolute right-0 z-40 mt-2 w-80 max-w-[calc(100vw_-_3rem)] animate-fade-up rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl">
           <div className="mb-2 flex items-center justify-between">
             <button type="button" onClick={() => move(-1)} className="grid h-8 w-8 place-items-center rounded-lg hover:bg-slate-100">
               <ChevronRight className="h-4 w-4" />

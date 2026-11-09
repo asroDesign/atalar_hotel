@@ -395,8 +395,8 @@ export function BookingForm({
 
       <div className="overflow-hidden rounded-2xl border border-brand-100 bg-gradient-to-br from-brand-50 to-white">
         <div className="space-y-2 p-4 text-sm">
-          <div className="flex items-center justify-between text-slate-600">
-            <span className="flex items-center gap-1">
+          <div className="flex flex-col gap-1 text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+            <span className="flex min-w-0 flex-wrap items-center gap-x-1">
               {kind === "room" ? `${room?.name ?? "—"} × ${faNum(nights)} شب` : `${service?.name ?? "—"}${slot ? ` · سانس ${faNum(slot)}` : ""}`}
               {kind === "room" && quoting && <span className="loading loading-dots loading-xs text-primary" />}
               {kind === "room" && quote && quote.nights.length > 0 && (
@@ -405,18 +405,18 @@ export function BookingForm({
                 </button>
               )}
             </span>
-            <span>{formatPrice(basePrice)} تومان</span>
+            <span className="shrink-0 self-end sm:self-auto">{formatPrice(basePrice)} تومان</span>
           </div>
           {kind === "room" && showNights && quote && (
             <ul className="space-y-1 rounded-box bg-base-100 p-2 text-xs">
               {quote.nights.map((n) => (
-                <li key={n.date} className="flex justify-between">
-                  <span className="flex items-center gap-1.5">
+                <li key={n.date} className="flex flex-wrap justify-between gap-x-2 gap-y-1">
+                  <span className="flex min-w-0 flex-wrap items-center gap-1.5">
                     {formatJalali(n.date, true)}
                     {n.kind === "holiday" && <span className="badge badge-error badge-soft badge-xs">{n.title || "تعطیل"}</span>}
                     {n.kind === "peak" && <span className="badge badge-warning badge-soft badge-xs">{n.title || "پیک"}</span>}
                   </span>
-                  <span>{formatPrice(n.price)}</span>
+                  <span className="shrink-0">{formatPrice(n.price)}</span>
                 </li>
               ))}
             </ul>

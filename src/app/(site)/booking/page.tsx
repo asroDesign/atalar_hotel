@@ -64,7 +64,7 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
             <div className="card card-border bg-base-100 shadow-sm p-5 block">
               <h3 className="font-extrabold text-slate-900">نیاز به راهنمایی دارید؟</h3>
               <p className="mt-1 text-sm leading-7 text-slate-500">کارشناسان پذیرش به‌صورت ۲۴ ساعته پاسخگوی شما هستند.</p>
-              <div className="mt-4 grid grid-cols-2 gap-2">
+              <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <a href={`tel:${s.phone}`} className="btn btn-primary"><Phone className="h-4 w-4" /><span dir="ltr">{faNum(s.phone)}</span></a>
                 <a href={`https://wa.me/${s.whatsapp}`} target="_blank" rel="noreferrer" className="btn"><MessageCircle className="h-4 w-4" /> واتس‌اپ</a>
               </div>

@@ -35,10 +35,10 @@ export default async function RoomDetail({ params }: { params: Promise<{ slug: s
 
   return (
     <div className="mx-auto max-w-7xl px-6 pb-10 pt-32">
-      <nav className="mb-6 flex items-center gap-1 text-sm text-slate-500">
+      <nav className="mb-6 flex flex-wrap items-center gap-1 text-sm text-slate-500">
         <Link href="/" className="hover:text-brand-700">خانه</Link><ChevronLeft className="h-4 w-4" />
         <Link href="/rooms" className="hover:text-brand-700">اتاق‌ها</Link><ChevronLeft className="h-4 w-4" />
-        <span className="text-slate-800">{room.name}</span>
+        <span className="min-w-0 break-words text-slate-800">{room.name}</span>
       </nav>
 
       <div className="grid gap-10 lg:grid-cols-[1.5fr_1fr]">
@@ -123,8 +123,8 @@ export default async function RoomDetail({ params }: { params: Promise<{ slug: s
         </div>
 
         <aside className="lg:sticky lg:top-28 lg:self-start">
-          <div className="card card-border bg-base-100 shadow-sm overflow-hidden block">
-            <div className="bg-gradient-to-l from-brand-800 to-brand-950 p-5 text-white">
+          <div className="card card-border bg-base-100 shadow-sm block">
+            <div className="rounded-t-[1.25rem] bg-gradient-to-l from-brand-800 to-brand-950 p-5 text-white">
               <div className="text-sm text-white/70">قیمت پایه هر شب (روزهای تعطیل و پیک متفاوت است)</div>
               <div className="mt-1 text-3xl font-black">{formatPrice(room.pricePerNight)} <span className="text-base font-medium text-white/70">تومان</span></div>
             </div>

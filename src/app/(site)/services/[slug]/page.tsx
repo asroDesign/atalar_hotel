@@ -25,18 +25,18 @@ export default async function ServiceDetail({ params }: { params: Promise<{ slug
 
   return (
     <div className="mx-auto max-w-7xl px-6 pb-10 pt-32">
-      <nav className="mb-6 flex items-center gap-1 text-sm text-slate-500">
+      <nav className="mb-6 flex flex-wrap items-center gap-1 text-sm text-slate-500">
         <Link href="/" className="hover:text-brand-700">خانه</Link><ChevronLeft className="h-4 w-4" />
         <Link href="/services" className="hover:text-brand-700">خدمات</Link><ChevronLeft className="h-4 w-4" />
-        <span className="text-slate-800">{svc.name}</span>
+        <span className="min-w-0 break-words text-slate-800">{svc.name}</span>
       </nav>
       <div className="grid gap-10 lg:grid-cols-[1.5fr_1fr]">
         <div className="space-y-10">
           <Gallery images={svc.gallery.length ? svc.gallery : [svc.image]} alt={svc.name} hasVideo={!!svc.videoUrl} />
           <div className="flex items-start gap-4">
             <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-brand-700 text-white"><DynIcon name={svc.icon} className="h-7 w-7" /></span>
-            <div>
-              <h1 className="text-3xl font-black text-slate-900 md:text-4xl">{svc.name}</h1>
+            <div className="min-w-0">
+              <h1 className="break-words text-3xl font-black text-slate-900 md:text-4xl">{svc.name}</h1>
               <p className="mt-2 text-lg leading-8 text-slate-500">{svc.shortDescription}</p>
             </div>
           </div>
@@ -85,8 +85,8 @@ export default async function ServiceDetail({ params }: { params: Promise<{ slug
         </div>
         <aside className="lg:sticky lg:top-28 lg:self-start">
           {svc.isBookable ? (
-            <div className="card card-border bg-base-100 shadow-sm overflow-hidden block">
-              <div className="bg-gradient-to-l from-brand-800 to-brand-950 p-5 text-white">
+            <div className="card card-border bg-base-100 shadow-sm block">
+              <div className="rounded-t-[1.25rem] bg-gradient-to-l from-brand-800 to-brand-950 p-5 text-white">
                 <div className="text-sm text-white/70">رزرو {svc.name}</div>
                 <div className="mt-1 text-2xl font-black">{Object.keys(svc.slotPrices).length ? <span className="text-sm font-medium text-white/70">از </span> : null}{formatPrice(fromPrice)} <span className="text-sm font-medium text-white/70">تومان · {svc.priceUnit}</span></div>
               </div>
