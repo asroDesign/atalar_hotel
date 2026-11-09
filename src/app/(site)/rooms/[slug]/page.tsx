@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { and, asc, eq, ne } from "drizzle-orm";
-import { BedDouble, Building2, CheckCircle2, ChevronLeft, Eye, Maximize, Users, Clock, PlusCircle } from "lucide-react";
+import { BedDouble, Building2, CalendarCheck, CheckCircle2, ChevronLeft, Eye, Maximize, Users, Clock, PlusCircle } from "lucide-react";
 import { db } from "@/db";
 import { rooms, services } from "@/db/schema";
 import { getSettings } from "@/lib/data";
@@ -34,30 +34,33 @@ export default async function RoomDetail({ params }: { params: Promise<{ slug: s
   ];
 
   return (
-    <div className="mx-auto max-w-7xl px-6 pb-10 pt-32">
+    <div className="mx-auto max-w-7xl px-4 pb-10 pt-24 sm:px-6 sm:pt-32">
       <nav className="mb-6 flex flex-wrap items-center gap-1 text-sm text-slate-500">
         <Link href="/" className="hover:text-brand-700">خانه</Link><ChevronLeft className="h-4 w-4" />
         <Link href="/rooms" className="hover:text-brand-700">اتاق‌ها</Link><ChevronLeft className="h-4 w-4" />
         <span className="min-w-0 break-words text-slate-800">{room.name}</span>
       </nav>
 
-      <div className="grid gap-10 lg:grid-cols-[1.5fr_1fr]">
-        <div className="space-y-10">
+      <div className="grid items-start gap-8 lg:grid-cols-[1.5fr_1fr] lg:gap-10">
+        <div className="min-w-0 space-y-8 sm:space-y-10">
           <Gallery images={room.images} alt={room.name} hasVideo={!!room.videoUrl} />
 
           <div>
             <span className="rounded-full bg-gold-400/15 px-3 py-1 text-xs font-bold text-gold-600">{room.type}</span>
-            <h1 className="mt-3 text-3xl font-black text-slate-900 md:text-4xl">{room.name}</h1>
-            <p className="mt-3 text-lg leading-8 text-slate-500">{room.shortDescription}</p>
+            <h1 className="mt-3 break-words text-2xl font-black text-slate-900 sm:text-3xl md:text-4xl">{room.name}</h1>
+            <p className="mt-3 break-words text-base leading-7 text-slate-500 sm:text-lg sm:leading-8">{room.shortDescription}</p>
+            <a href="#room-booking" className="btn btn-secondary mt-5 h-12 w-full sm:w-auto lg:hidden">
+              <CalendarCheck className="h-4 w-4" /> رزرو آنلاین این اتاق
+            </a>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 min-[380px]:grid-cols-2 md:grid-cols-3">
             {specs.map(({ Icon, label, value }) => (
-              <div key={label} className="card card-border bg-base-100 shadow-sm flex items-center gap-3 p-4 flex-row">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700"><Icon className="h-5 w-5" /></span>
+              <div key={label} className="card card-border bg-base-100 shadow-sm flex min-w-0 items-center gap-2 p-3 flex-row sm:gap-3 sm:p-4">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700 sm:h-11 sm:w-11"><Icon className="h-5 w-5" /></span>
                 <div className="min-w-0">
-                  <div className="text-xs text-slate-500">{label}</div>
-                  <div className="truncate text-sm font-bold text-slate-800">{value}</div>
+                  <div className="break-words text-xs text-slate-500">{label}</div>
+                  <div className="break-words text-xs font-bold text-slate-800 sm:text-sm">{value}</div>
                 </div>
               </div>
             ))}
@@ -73,10 +76,10 @@ export default async function RoomDetail({ params }: { params: Promise<{ slug: s
           {room.features.length > 0 && (
             <section>
               <h2 className="mb-4 text-xl font-extrabold text-slate-900">امکانات اتاق</h2>
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 min-[380px]:grid-cols-2 md:grid-cols-3">
                 {room.features.map((f) => (
-                  <div key={f} className="flex items-center gap-2 rounded-xl bg-white px-3 py-2.5 text-sm text-slate-700 ring-1 ring-slate-200/70">
-                    <CheckCircle2 className="h-4 w-4 shrink-0 text-brand-600" /> {f}
+                  <div key={f} className="flex min-w-0 items-center gap-2 rounded-xl bg-white px-3 py-2.5 text-sm text-slate-700 ring-1 ring-slate-200/70">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-brand-600" /> <span className="min-w-0 break-words">{f}</span>
                   </div>
                 ))}
               </div>
@@ -88,8 +91,8 @@ export default async function RoomDetail({ params }: { params: Promise<{ slug: s
               <h2 className="mb-4 text-xl font-extrabold">خدمات و وعده‌های غذایی</h2>
               <div className="grid gap-3 sm:grid-cols-2">
                 {room.options.map((o) => (
-                  <div key={o.id} className="flex items-center justify-between rounded-box bg-base-100 px-4 py-3 text-sm ring-1 ring-base-300">
-                    <span className="font-medium">{o.title}</span>
+                  <div key={o.id} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-box bg-base-100 px-4 py-3 text-sm ring-1 ring-base-300">
+                    <span className="min-w-0 break-words font-medium">{o.title}</span>
                     {o.included ? <span className="badge badge-success badge-soft">رایگان</span> : <span className="text-base-content/70">{formatPrice(o.price)} تومان <span className="text-xs text-base-content/50">/ {optionUnitLabel[o.unit]}</span></span>}
                   </div>
                 ))}
@@ -122,7 +125,7 @@ export default async function RoomDetail({ params }: { params: Promise<{ slug: s
           </section>
         </div>
 
-        <aside className="lg:sticky lg:top-28 lg:self-start">
+        <aside id="room-booking" className="scroll-mt-28 lg:sticky lg:top-28 lg:self-start">
           <div className="card card-border bg-base-100 shadow-sm block">
             <div className="rounded-t-[1.25rem] bg-gradient-to-l from-brand-800 to-brand-950 p-5 text-white">
               <div className="text-sm text-white/70">قیمت پایه هر شب (روزهای تعطیل و پیک متفاوت است)</div>

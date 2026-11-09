@@ -50,10 +50,10 @@ export function Gallery({ images, alt, hasVideo }: { images: string[]; alt: stri
         )}
         {list.length > 1 && (
           <>
-            <button onClick={() => setActive((a) => (a - 1 + list.length) % list.length)} className="frost absolute right-4 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full text-white opacity-0 transition group-hover:opacity-100">
+            <button onClick={() => setActive((a) => (a - 1 + list.length) % list.length)} className="frost absolute right-4 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full text-white opacity-100 transition lg:opacity-0 lg:group-hover:opacity-100">
               <ChevronRight className="h-5 w-5" />
             </button>
-            <button onClick={() => setActive((a) => (a + 1) % list.length)} className="frost absolute left-4 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full text-white opacity-0 transition group-hover:opacity-100">
+            <button onClick={() => setActive((a) => (a + 1) % list.length)} className="frost absolute left-4 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full text-white opacity-100 transition lg:opacity-0 lg:group-hover:opacity-100">
               <ChevronLeft className="h-5 w-5" />
             </button>
           </>
