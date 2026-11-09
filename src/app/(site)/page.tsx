@@ -103,19 +103,19 @@ export default async function HomePage() {
 
       {/* POOL */}
       {h.showPool && (
-        <section className="relative overflow-hidden bg-brand-950 py-24 text-white">
+        <section className="relative overflow-hidden bg-brand-950 py-14 text-white sm:py-20 lg:py-24">
           <div className="pointer-events-none absolute -right-40 top-0 h-[30rem] w-[30rem] rounded-full bg-brand-500/20 blur-3xl" />
-          <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2">
-            <div className="relative">
+          <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-12">
+            <div className="relative mb-3 min-w-0 sm:mb-0">
               <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] shadow-2xl ring-1 ring-white/10">
                 <MediaPlaylist items={h.poolMedia} fallback={pool?.image || "/images/pool.jpg"} indicatorClassName="bottom-4 right-4" />
               </div>
               {(h.poolBadgeTop || h.poolBadgeBottom) && (
-                <div className="frost absolute -bottom-6 left-6 flex items-center gap-3 rounded-2xl p-4">
+                <div className="frost absolute -bottom-5 left-3 right-3 flex min-w-0 items-center gap-3 rounded-2xl p-3 sm:-bottom-6 sm:left-6 sm:right-auto sm:p-4">
                   <span className="grid h-12 w-12 place-items-center rounded-xl bg-gold-400 text-brand-950"><Waves className="h-6 w-6" /></span>
-                  <div>
-                    <div className="text-sm text-white/70">{h.poolBadgeTop}</div>
-                    <div className="font-black">{h.poolBadgeBottom}</div>
+                  <div className="min-w-0 break-words">
+                    <div className="break-words text-sm text-white/70">{h.poolBadgeTop}</div>
+                    <div className="break-words font-black">{h.poolBadgeBottom}</div>
                   </div>
                 </div>
               )}
@@ -123,28 +123,28 @@ export default async function HomePage() {
             <div>
               <SectionTitle eyebrow={h.poolEyebrow} title={h.poolTitle} desc={h.poolText} center={false} light />
               {h.poolFeatures.length > 0 && (
-                <div className="-mt-6 grid grid-cols-2 gap-3">
+                <div className="-mt-6 grid grid-cols-1 gap-3 min-[380px]:grid-cols-2">
                   {h.poolFeatures.map((f, i) => (
-                    <div key={i} className="flex items-center gap-2 rounded-2xl bg-white/5 px-4 py-3 text-sm ring-1 ring-white/10">
-                      <span className="h-2 w-2 shrink-0 rounded-full bg-gold-400" /> {f}
+                    <div key={i} className="flex min-w-0 items-start gap-2 rounded-2xl bg-white/5 px-3 py-3 text-sm ring-1 ring-white/10 sm:px-4">
+                      <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-gold-400" /> <span className="min-w-0 break-words">{f}</span>
                     </div>
                   ))}
                 </div>
               )}
               {pool && pool.timeSlots.length > 0 && (
-                <div className="no-scrollbar mt-6 flex gap-2 overflow-x-auto pb-1">
+                <div className="mt-6 grid grid-cols-2 gap-2 min-[440px]:grid-cols-3 md:grid-cols-4">
                   {pool.timeSlots.map((t) => (
-                    <div key={t} className="shrink-0 rounded-xl bg-white/5 px-3 py-2 text-center ring-1 ring-white/10">
+                    <div key={t} className="min-w-0 rounded-xl bg-white/5 px-2 py-2.5 text-center ring-1 ring-white/10 sm:px-3">
                       <div dir="ltr" className="font-mono text-xs text-white/70">{faNum(t)}</div>
-                      <div className="text-sm font-bold text-gold-300">{formatPrice(pool.slotPrices[t] ?? pool.price)}</div>
+                      <div className="break-words text-xs font-bold text-gold-300 sm:text-sm">{formatPrice(pool.slotPrices[t] ?? pool.price)}</div>
                     </div>
                   ))}
                 </div>
               )}
-              <div className="mt-8 flex flex-wrap items-center gap-4">
-                {pool && <Link href={`/services/${pool.slug}`} className="btn btn-secondary px-6 h-12"><CalendarCheck className="h-4 w-4" /> {h.poolCta}</Link>}
+              <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+                {pool && <Link href={`/services/${pool.slug}`} className="btn btn-secondary h-12 w-full px-6 sm:w-auto"><CalendarCheck className="h-4 w-4" /> {h.poolCta}</Link>}
                 {pool && minServicePrice(pool) > 0 && (
-                  <span className="text-white/70">
+                  <span className="text-center text-white/70 sm:text-right">
                     از {formatPrice(minServicePrice(pool))} تومان · {pool.priceUnit}
                     {pool.extraGuestPrice > 0 && <span className="block text-xs text-white/50">تا {faNum(pool.includedGuests)} نفر · هر نفر اضافه {formatPrice(pool.extraGuestPrice)} تومان</span>}
                   </span>
