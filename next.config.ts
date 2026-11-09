@@ -20,7 +20,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
   images: { unoptimized: true },
-  serverExternalPackages: ["libheif-js"],
+  serverExternalPackages: ["sharp", "libheif-js"],
+  outputFileTracingIncludes: {
+    "/*": ["node_modules/@img/sharp-*/**/*"],
+  },
   async headers() {
     return [
       {
